@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989393495390",
+    "project_id": "water-tracker-c3e9e",
+    "storage_bucket": "water-tracker-c3e9e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989393495390:android:d2f0b85b60ab6776631bcf",
+        "android_client_info": {
+          "package_name": "com.example.WaterWise"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6Vlqc2ijjxJuaAv0KP3vkSqrWCxq-nI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
