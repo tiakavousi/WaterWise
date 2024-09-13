@@ -12,7 +12,20 @@
           "package_name": "com.example.WaterWise"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "989393495390-m7rac35ulb27misi19sun4vge3mdmed3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.WaterWise",
+            "certificate_hash": "55b8ba291a88c094c5361544331f953577add314"
+          }
+        },
+        {
+          "client_id": "989393495390-e60b0kv27uno0h2sb21hdf077eagnn1i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC6Vlqc2ijjxJuaAv0KP3vkSqrWCxq-nI0"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989393495390-e60b0kv27uno0h2sb21hdf077eagnn1i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

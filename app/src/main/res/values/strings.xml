@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WaterWise</string>
+    <string name="default_web_client_id">"989393495390-e60b0kv27uno0h2sb21hdf077eagnn1i.apps.googleusercontent.com"</string>
 </resources>

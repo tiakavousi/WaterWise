@@ -1,16 +1,18 @@
 package com.example.WaterWise;
 
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.Button;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
+
 
 import java.util.ArrayList;
 
@@ -19,7 +21,9 @@ public class MainActivity extends AppCompatActivity {
     PieChart pieChart;
     TextView txtProgress;
     TextView txtGoal;
-    Button btnAddWater, btnSetGoal;
+    Button btnAddWater, btnSetGoal, signOutButton;
+    TextView userName;
+    Button logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +36,23 @@ public class MainActivity extends AppCompatActivity {
         btnAddWater = findViewById(R.id.btnAddWater);
         btnSetGoal = findViewById(R.id.btnSetGoal);
 
+        // sign in / sign up
+        logout = findViewById(R.id.logout);
+        userName = findViewById(R.id.userName);
+
+        // Set click listener for logout
+        logout.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();  // Sign the user out
+            startActivity(new Intent(MainActivity.this, EntryActivity.class));  // Go back to EntryActivity
+            finish();  // Close MainActivity
+        });
+
         int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000); // Default goal: 2000 ml
         int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
 
         updatePieChart(goal, progress);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
         btnAddWater.setOnClickListener(v -> {
             // Show the bottom sheet dialog
@@ -48,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, SetGoalActivity.class);
             startActivity(intent);
         });
+
     }
 
     private void updatePieChart(int goal, int progress) {
