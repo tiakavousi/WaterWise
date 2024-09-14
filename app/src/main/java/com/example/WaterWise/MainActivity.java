@@ -1,50 +1,54 @@
 package com.example.WaterWise;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.auth.FirebaseAuth;
-
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
     PieChart pieChart;
-    TextView txtProgress;
-    TextView txtGoal;
-    Button btnAddWater, btnSetGoal, signOutButton;
-    TextView userName;
-    Button logout;
+    Button btnAddWater, btnSetGoal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         pieChart = findViewById(R.id.pieChart);
-        txtProgress = findViewById(R.id.txtProgress);
-        txtGoal = findViewById(R.id.txtGoal);
         btnAddWater = findViewById(R.id.btnAddWater);
         btnSetGoal = findViewById(R.id.btnSetGoal);
 
-        // sign in / sign up
-        logout = findViewById(R.id.logout);
-        userName = findViewById(R.id.userName);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
 
-        // Set click listener for logout
-        logout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();  // Sign the user out
-            startActivity(new Intent(MainActivity.this, EntryActivity.class));  // Go back to EntryActivity
-            finish();  // Close MainActivity
+            if (itemId == R.id.nav_history) {
+                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_add_water) {
+                startActivity(new Intent(MainActivity.this, AddWaterActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_settings) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000);
+                int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
+                intent.putExtra("goal", goal);
+                intent.putExtra("progress", progress);
+                startActivity(intent);
+                return true;
+            }
+            return false;
         });
 
         int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000); // Default goal: 2000 ml
@@ -55,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnAddWater.setOnClickListener(v -> {
-            // Show the bottom sheet dialog
             AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
             dialog.setOnWaterAmountSelectedListener(this::addWater);
             dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
@@ -81,24 +84,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "Water Consumption");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS); // Set colors for the pie chart
+        int[] customColors = {Color.BLUE, Color.GRAY};
+        dataSet.setColors(customColors);
 
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
 
         // Customize the pie chart appearance
         pieChart.setUsePercentValues(true);
-        pieChart.getDescription().setEnabled(false); // Disable description text
-        pieChart.setHoleRadius(45f); // Make a hollow center
-        pieChart.setTransparentCircleRadius(50f);
+        pieChart.getDescription().setEnabled(false);
+        pieChart.setHoleRadius(50f);
+        pieChart.setTransparentCircleRadius(53f);
         pieChart.setCenterText("Water Tracker");
         pieChart.setCenterTextSize(18f);
 
         // Refresh the pie chart
         pieChart.invalidate();
-
-        txtProgress.setText("Progress: " + progress + " ml");
-        txtGoal.setText("Goal: " + goal + " ml");
     }
 
     private void addWater(int amount) {
