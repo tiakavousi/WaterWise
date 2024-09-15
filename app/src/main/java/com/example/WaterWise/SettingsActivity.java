@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,12 +17,12 @@ public class SettingsActivity extends AppCompatActivity {
     ImageView profilePicture;
     RadioButton maleButton, femaleButton;
     EditText weightInput, goalInput;
-    Button logoutButton, signUpButton; // Depending on login status
+    Button logoutButton, signUpButton, btnSaveGoal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings); // Create this layout
+        setContentView(R.layout.activity_settings);
 
         profilePicture = findViewById(R.id.profilePicture);
         maleButton = findViewById(R.id.maleButton);
@@ -29,14 +31,16 @@ public class SettingsActivity extends AppCompatActivity {
         goalInput = findViewById(R.id.goalInput);
         logoutButton = findViewById(R.id.logoutButton);
         signUpButton = findViewById(R.id.signUpButton);
+        btnSaveGoal = findViewById(R.id.btnSaveGoal);
 
         // Initially hide both buttons
         logoutButton.setVisibility(View.GONE);
         signUpButton.setVisibility(View.GONE);
 
-        int goal = getIntent().getIntExtra("goal", 2000); // Default to 2000 if not found
-        int progress = getIntent().getIntExtra("progress", 0);
-        updateProfilePhoto(goal, progress); // Call the new method to update the photo
+        // Retrieve and update profile photo based on goal and progress
+        int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000);
+        int intake = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("intake", 0);
+        updateProfilePhoto(goal, intake);
 
         // Check if user is logged in
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
@@ -52,7 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
             // User is not logged in, show sign up button
             signUpButton.setVisibility(View.VISIBLE);
 
-            // Handle sign up button click (you'll need to implement this)
+            // Handle sign up button click
             signUpButton.setOnClickListener(v -> {
                 startActivity(new Intent(SettingsActivity.this, EntryActivity.class));
             });
@@ -66,7 +70,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (itemId == R.id.nav_history) {
                 startActivity(new Intent(SettingsActivity.this, HistoryActivity.class));
                 return true;
-            } else if (itemId == R.id.nav_home) { // Assuming you have a 'nav_home' item in your menu
+            } else if (itemId == R.id.nav_home) {
                 startActivity(new Intent(SettingsActivity.this, MainActivity.class));
                 return true;
             } else if (itemId == R.id.nav_settings) {
@@ -75,10 +79,22 @@ public class SettingsActivity extends AppCompatActivity {
 
             return false;
         });
+
+        // Handle Save Goal button click
+        btnSaveGoal.setOnClickListener(v -> {
+            try {
+                int newGoal = Integer.parseInt(goalInput.getText().toString());
+                getSharedPreferences("WaterTracker", MODE_PRIVATE).edit().putInt("goal", newGoal).apply();
+                Toast.makeText(SettingsActivity.this, "Goal Set!", Toast.LENGTH_SHORT).show();
+                updateProfilePhoto(newGoal, getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("intake", 0));
+            } catch (NumberFormatException e) {
+                Toast.makeText(SettingsActivity.this, "Please enter a valid number.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void updateProfilePhoto( int goal,  int progress) {
-        double percentage = (double) progress / goal * 100;
+    private void updateProfilePhoto(int goal, int intake) {
+        double percentage = (double) intake / goal * 100;
 
         if (percentage <= 25) {
             profilePicture.setImageResource(R.drawable.thirsty_cat);

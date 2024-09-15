@@ -14,24 +14,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <Button
-        android:id="@+id/btnAddWater"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Water"
-        app:layout_constraintTop_toBottomOf="@id/pieChart"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
-
-    <Button
-        android:id="@+id/btnSetGoal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set Goal"
-        app:layout_constraintTop_toBottomOf="@id/btnAddWater"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
-
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"

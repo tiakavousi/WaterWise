@@ -3,7 +3,6 @@ package com.example.WaterWise;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     PieChart pieChart;
-    Button btnAddWater, btnSetGoal;
+    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,13 +22,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         pieChart = findViewById(R.id.pieChart);
-        btnAddWater = findViewById(R.id.btnAddWater);
-        btnSetGoal = findViewById(R.id.btnSetGoal);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         int goal = getGoal();
         int intake = getIntake();
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -37,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, HistoryActivity.class));
                 return true;
             } else if (itemId == R.id.nav_add_water) {
-                startActivity(new Intent(MainActivity.this, AddWaterActivity.class));
+                showAddWaterDialog();
                 return true;
             } else if (itemId == R.id.nav_settings) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -49,22 +46,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-
         updatePieChart(goal, intake);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-
-        btnAddWater.setOnClickListener(v -> {
-            AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
-            dialog.setOnWaterAmountSelectedListener(this::addWater);
-            dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
-        });
-
-        btnSetGoal.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SetGoalActivity.class);
-            startActivity(intent);
-        });
-
     }
 
     private int getGoal() {
@@ -91,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
 
-        //PieChart appearance
         pieChart.setCenterText(String.format("%.0f%%\n%.2fL", intakePercentage, intakeLiters));
         pieChart.setCenterTextSize(40f);
         pieChart.setHoleColor(android.R.color.holo_blue_bright);
@@ -100,16 +82,20 @@ public class MainActivity extends AppCompatActivity {
         pieChart.getLegend().setEnabled(false);
         pieChart.getData().setDrawValues(false);
 
-        // Refresh the pie chart
         pieChart.invalidate();
+    }
+
+    private void showAddWaterDialog() {
+        AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
+        dialog.setOnWaterAmountSelectedListener(this::addWater);
+        dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
     }
 
     private void addWater(int amount) {
         int intake = getIntake();
         intake += amount;
-
         getSharedPreferences("WaterTracker", MODE_PRIVATE).edit().putInt("intake", intake).apply();
-        updatePieChart(getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000), intake);
+        updatePieChart(getGoal(), intake);
     }
 
     @Override
