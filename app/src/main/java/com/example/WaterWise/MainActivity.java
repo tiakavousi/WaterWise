@@ -4,16 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,12 +21,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         pieChart = findViewById(R.id.pieChart);
         btnAddWater = findViewById(R.id.btnAddWater);
         btnSetGoal = findViewById(R.id.btnSetGoal);
 
+        int goal = getGoal();
+        int intake = getIntake();
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -41,20 +41,16 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_settings) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000);
-                int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
                 intent.putExtra("goal", goal);
-                intent.putExtra("progress", progress);
+                intent.putExtra("intake", intake);
                 startActivity(intent);
                 return true;
             }
             return false;
         });
 
-        int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000); // Default goal: 2000 ml
-        int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
 
-        updatePieChart(goal, progress);
+        updatePieChart(goal, intake);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
@@ -71,50 +67,54 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updatePieChart(int goal, int progress) {
+    private int getGoal() {
+        return getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000);
+    }
+
+    private int getIntake() {
+        return getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("intake", 0);
+    }
+
+    private void updatePieChart(int goal, int intake) {
+        int remaining = goal - intake;
+        float intakePercentage = (intake * 100f) / goal;
+        float intakeLiters = intake / 1000f;
+
         ArrayList<PieEntry> entries = new ArrayList<>();
-
-        // Add the consumed amount entry
-        entries.add(new PieEntry(progress, "Consumed"));
-
-        // Add the remaining amount entry
-        int remaining = goal - progress;
+        entries.add(new PieEntry(intake));
         if (remaining > 0) {
-            entries.add(new PieEntry(remaining, "Remaining"));
+            entries.add(new PieEntry(remaining));
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "Water Consumption");
-        int[] customColors = {Color.BLUE, Color.GRAY};
-        dataSet.setColors(customColors);
-
+        dataSet.setColors(Color.BLUE, Color.GRAY);
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
 
-        // Customize the pie chart appearance
-        pieChart.setUsePercentValues(true);
+        //PieChart appearance
+        pieChart.setCenterText(String.format("%.0f%%\n%.2fL", intakePercentage, intakeLiters));
+        pieChart.setCenterTextSize(40f);
+        pieChart.setHoleColor(android.R.color.holo_blue_bright);
         pieChart.getDescription().setEnabled(false);
-        pieChart.setHoleRadius(50f);
-        pieChart.setTransparentCircleRadius(53f);
-        pieChart.setCenterText("Water Tracker");
-        pieChart.setCenterTextSize(18f);
+        pieChart.setHoleRadius(58f);
+        pieChart.getLegend().setEnabled(false);
+        pieChart.getData().setDrawValues(false);
 
         // Refresh the pie chart
         pieChart.invalidate();
     }
 
     private void addWater(int amount) {
-        int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
-        progress += amount;
+        int intake = getIntake();
+        intake += amount;
 
-        getSharedPreferences("WaterTracker", MODE_PRIVATE).edit().putInt("progress", progress).apply();
-        updatePieChart(getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000), progress);
+        getSharedPreferences("WaterTracker", MODE_PRIVATE).edit().putInt("intake", intake).apply();
+        updatePieChart(getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000), intake);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        int goal = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("goal", 2000);
-        int progress = getSharedPreferences("WaterTracker", MODE_PRIVATE).getInt("progress", 0);
-        updatePieChart(goal, progress);
+        updatePieChart(getGoal(), getIntake());
     }
 }
