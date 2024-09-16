@@ -2,10 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
     <color name="colorPrimary">#999</color>
-    <color name="lavender">#8692f7</color>
     <!-- Blue shades -->
     <color name="blue">#2196F3</color> <!-- Primary Blue -->
     <color name="blue_dark">#1976D2</color> <!-- Darker Blue -->

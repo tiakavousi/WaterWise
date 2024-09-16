@@ -3,6 +3,8 @@ package com.example.WaterWise;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+
 import androidx.appcompat.app.AppCompatActivity;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -22,11 +24,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         pieChart = findViewById(R.id.pieChart);
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-
         int goal = getGoal();
         int intake = getIntake();
 
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        Menu menu = bottomNavigationView.getMenu();
+        menu.findItem(R.id.nav_home).setVisible(false);
+        menu.findItem(R.id.nav_add_water).setVisible(true);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
