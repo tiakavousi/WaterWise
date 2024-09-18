@@ -1,8 +1,9 @@
 package com.example.WaterWise;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -13,14 +14,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-
 import android.widget.EditText;
 
 
 public class SettingsActivity extends AppCompatActivity {
     ImageView profilePicture;
     TextView nicknameValue, genderValue, weightValue, dailyGoalValue;
-    SharedPreferences sharedPreferences;
     Button signOutButton, signUpButton;
 
     @Override
@@ -37,17 +36,13 @@ public class SettingsActivity extends AppCompatActivity {
         signOutButton = findViewById(R.id.signOutButton);
         signUpButton = findViewById(R.id.signUpButton);
 
-        sharedPreferences = getSharedPreferences("WaterTracker", MODE_PRIVATE);
+        nicknameValue.setText("Tia");
+        genderValue.setText("Female");
+        weightValue.setText("weight");
+        dailyGoalValue.setText("dailyGoal");
 
-        // Set initial values from SharedPreferences or default values
-        nicknameValue.setText(sharedPreferences.getString("nickname", "Tia"));
-        genderValue.setText(sharedPreferences.getString("gender", "Female"));
-        weightValue.setText(sharedPreferences.getString("weight", "48kg"));
-        dailyGoalValue.setText(sharedPreferences.getString("dailyGoal", "3L"));
-
-        // Update profile picture based on current intake and goal
-        int goal = sharedPreferences.getInt("goal", 3000);  // Default 3L goal
-        int intake = sharedPreferences.getInt("intake", 0);  // Default intake 0
+        int goal = 2000;
+        int intake = 0;
         updateProfilePhoto(goal, intake);
 
         // Set click listeners for updating fields
@@ -113,19 +108,31 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     private void showInputDialog(String title, String hint, String key, TextView textView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
 
         final EditText input = new EditText(this);
         input.setHint(hint);
-        builder.setView(input);
 
+        // Set current value in input
+        String currentValue = textView.getText().toString();
+        input.setText(currentValue);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        builder.setView(input);
         builder.setPositiveButton("Save", (dialog, which) -> {
             String value = input.getText().toString();
             if (!value.isEmpty()) {
-                sharedPreferences.edit().putString(key, value).apply();
-                textView.setText(value);
+                // Update textView display format based on the key
+                if (key.equals("weight")) {
+                    textView.setText(String.format("%s kg", value));
+                } else if (key.equals("dailyGoal")) {
+                    textView.setText(String.format("%sL", value));
+                } else {
+                    textView.setText(value);
+                }
                 Toast.makeText(SettingsActivity.this, title + " updated", Toast.LENGTH_SHORT).show();
             }
         });
@@ -134,13 +141,13 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
+
     private void showGenderDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Gender");
         String[] genders = {"Male", "Female"};
         builder.setItems(genders, (dialog, which) -> {
             String selectedGender = genders[which];
-            sharedPreferences.edit().putString("gender", selectedGender).apply();
             genderValue.setText(selectedGender);
         });
         builder.show();
