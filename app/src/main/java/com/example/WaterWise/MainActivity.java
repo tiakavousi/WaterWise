@@ -13,6 +13,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
     PieChart pieChart;
     BottomNavigationView bottomNavigationView;
     DataModel dataModel;
+    FirestoreHelper firestoreHelper = new FirestoreHelper();
+
+
+    private void fetchUserData() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> updatePieChart(goal, intake));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,22 +36,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // get ViewModel
-        dataModel = new ViewModelProvider(this).get(DataModel.class);
-        // Observe goal and intake changes in ViewModel
-        dataModel.getGoal().observe(this, this::updateGoal);
-        dataModel.getIntake().observe(this, intake -> {
-            if (dataModel.getGoal().getValue() != null) {
-                updatePieChart(dataModel.getGoal().getValue(), intake);
-            }
-        });
+        dataModel = new ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(DataModel.class);
 
-        // Set initial goal and intake if necessary
-        if (dataModel.getGoal().getValue() == null) {
-            dataModel.setGoal(2000);  // Default goal
-        }
-        if (dataModel.getIntake().getValue() == null) {
-            dataModel.setIntake(0);   // Default intake
-        }
 
         pieChart = findViewById(R.id.pieChart);
 
@@ -67,16 +65,10 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        fetchUserData();
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
     }
-
-    private void updateGoal(int goal) {
-        if (dataModel.getIntake().getValue() != null) {
-            updatePieChart(goal, dataModel.getIntake().getValue());
-        }
-    }
-
 
     @SuppressLint("DefaultLocale")
     private void updatePieChart(int goal, int intake) {
@@ -115,12 +107,22 @@ public class MainActivity extends AppCompatActivity {
         intake += amount;
         dataModel.setIntake(intake);
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
+        // Save updated intake to Firestore
+        firestoreHelper.saveUserData(
+                dataModel.getName().getValue(),
+                dataModel.getGoal().getValue(),
+                intake,  // Save the updated intake
+                dataModel.getWeight().getValue(),
+                dataModel.getGender().getValue()
+        );
         Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        fetchUserData();
+
         // Ensure the pie chart is up to date when returning to MainActivity
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());

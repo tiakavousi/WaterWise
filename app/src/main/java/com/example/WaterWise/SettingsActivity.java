@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import android.widget.EditText;
@@ -19,44 +20,49 @@ import android.widget.EditText;
 
 public class SettingsActivity extends AppCompatActivity {
     ImageView profilePicture;
-    TextView nicknameValue, genderValue, weightValue, dailyGoalValue;
+    TextView nameValue, genderValue, weightValue, dailyGoalValue;
     Button signOutButton, signUpButton;
+    DataModel dataModel;
+    FirestoreHelper firestoreHelper = new FirestoreHelper();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        dataModel = new ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(DataModel.class);
 
         // Initialize views
         profilePicture = findViewById(R.id.profilePicture);
-        nicknameValue = findViewById(R.id.nicknameValue);
+        nameValue = findViewById(R.id.nameValue);
         genderValue = findViewById(R.id.genderValue);
         weightValue = findViewById(R.id.weightValue);
         dailyGoalValue = findViewById(R.id.dailyGoalValue);
         signOutButton = findViewById(R.id.signOutButton);
         signUpButton = findViewById(R.id.signUpButton);
 
-        nicknameValue.setText("Tia");
-        genderValue.setText("Female");
-        weightValue.setText("weight");
-        dailyGoalValue.setText("dailyGoal");
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
+        }
 
-        int goal = 2000;
-        int intake = 0;
-        updateProfilePhoto(goal, intake);
 
-        // Set click listeners for updating fields
-        nicknameValue.setOnClickListener(v -> showInputDialog("Nickname", "Enter your nickname", "nickname", nicknameValue));
+
+        updateProfilePhoto(dataModel.getGoal().getValue() != null ? dataModel.getGoal().getValue() : 2000,
+                dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0);
+
+        nameValue.setOnClickListener(v -> showInputDialog("Name","name"));
         genderValue.setOnClickListener(v -> showGenderDialog());
-        weightValue.setOnClickListener(v -> showInputDialog("Weight", "Enter your weight", "weight", weightValue));
-        dailyGoalValue.setOnClickListener(v -> showInputDialog("Daily Goal", "Enter your daily goal (L)", "dailyGoal", dailyGoalValue));
+        weightValue.setOnClickListener(v -> showInputDialog("Weight","weight"));
+        dailyGoalValue.setOnClickListener(v -> showInputDialog("Daily Goal","dailyGoal"));
 
         // Sign up and Sign out
         signOutButton.setVisibility(View.GONE);
         signUpButton.setVisibility(View.GONE);
-        // Check if user is logged in
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            // User is logged in, show logout button
             signOutButton.setVisibility(View.VISIBLE);
 
             signOutButton.setOnClickListener(v -> {
@@ -65,16 +71,10 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
             });
         } else {
-            // User is not logged in, show sign up button
             signUpButton.setVisibility(View.VISIBLE);
-
-            // Handle sign up button click
-            signUpButton.setOnClickListener(v -> {
-                startActivity(new Intent(SettingsActivity.this, EntryActivity.class));
-            });
+            signUpButton.setOnClickListener(v -> startActivity(new Intent(SettingsActivity.this, EntryActivity.class)));
         }
 
-        // Navigation menu
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
         menu.findItem(R.id.nav_home).setVisible(true);
@@ -87,10 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_home) {
                 startActivity(new Intent(SettingsActivity.this, MainActivity.class));
                 return true;
-            } else if (itemId == R.id.nav_settings) {
-                return true;
-            }
-            return false;
+            } else return itemId == R.id.nav_settings;
         });
     }
 
@@ -108,16 +105,38 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    private void observeDataModel() {
+        dataModel.getName().observe(this, name -> nameValue.setText(name != null ? name : "name not set"));
+
+        dataModel.getGender().observe(this, gender -> genderValue.setText(gender != null ? gender : "Gender not set"));
+
+        dataModel.getWeight().observe(this, weight -> weightValue.setText(weight != null ? weight : "Weight not set"));
+
+        dataModel.getGoal().observe(this, goal -> {
+            dailyGoalValue.setText(goal != null ? String.format("%sml", goal) : "Goal not set");
+            updateProfilePhoto(goal != null ? goal : 2000,
+                    dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0);
+        });
+
+        dataModel.getIntake().observe(this, intake -> {
+        });
+    }
+
     @SuppressLint("DefaultLocale")
-    private void showInputDialog(String title, String hint, String key, TextView textView) {
+    private void showInputDialog(String title, String key) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
 
         final EditText input = new EditText(this);
-        input.setHint(hint);
 
-        // Set current value in input
-        String currentValue = textView.getText().toString();
+        String currentValue;
+        if (key.equals("weight")) {
+            currentValue = weightValue.getText().toString();
+        } else if (key.equals("dailyGoal")) {
+            currentValue = dailyGoalValue.getText().toString();
+        } else {
+            currentValue = nameValue.getText().toString();
+        }
         input.setText(currentValue);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
 
@@ -125,14 +144,25 @@ public class SettingsActivity extends AppCompatActivity {
         builder.setPositiveButton("Save", (dialog, which) -> {
             String value = input.getText().toString();
             if (!value.isEmpty()) {
-                // Update textView display format based on the key
-                if (key.equals("weight")) {
-                    textView.setText(String.format("%s kg", value));
-                } else if (key.equals("dailyGoal")) {
-                    textView.setText(String.format("%sL", value));
-                } else {
-                    textView.setText(value);
+                switch (key) {
+                    case "name":
+                        dataModel.setName(value);
+                        break;
+                    case "weight":
+                        dataModel.setWeight(value + " kg");
+                        break;
+                    case "dailyGoal":
+                        dataModel.setGoal(Integer.parseInt(value));
+                        break;
                 }
+
+                firestoreHelper.saveUserData(
+                        dataModel.getName().getValue(),
+                        dataModel.getGoal().getValue(),
+                        dataModel.getIntake().getValue(),
+                        dataModel.getWeight().getValue(),
+                        dataModel.getGender().getValue()
+                );
                 Toast.makeText(SettingsActivity.this, title + " updated", Toast.LENGTH_SHORT).show();
             }
         });
@@ -141,16 +171,33 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-
     private void showGenderDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Gender");
         String[] genders = {"Male", "Female"};
         builder.setItems(genders, (dialog, which) -> {
             String selectedGender = genders[which];
+            dataModel.setGender(selectedGender);
             genderValue.setText(selectedGender);
+
+            firestoreHelper.saveUserData(
+                    dataModel.getName().getValue(),
+                    dataModel.getGoal().getValue(),
+                    dataModel.getIntake().getValue(),
+                    dataModel.getWeight().getValue(),
+                    dataModel.getGender().getValue()
+            );
         });
         builder.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
+        }
     }
 
 }

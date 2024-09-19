@@ -13,19 +13,14 @@ public class EntryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
 
-        // Check if the user is already logged in
         if (currentUser != null) {
-            // User is logged in, redirect to home page (MainActivity)
             startActivity(new Intent(EntryActivity.this, MainActivity.class));
         } else {
-            // User is not logged in, redirect to SignupActivity
             startActivity(new Intent(EntryActivity.this, SignupActivity.class));
         }
-        // Finish this activity so the user can't return to it
         finish();
     }
 }
