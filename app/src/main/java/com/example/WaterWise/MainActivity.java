@@ -16,14 +16,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
     PieChart pieChart;
     BottomNavigationView bottomNavigationView;
     DataModel dataModel;
     FirestoreHelper firestoreHelper = new FirestoreHelper();
-
 
     private void fetchUserData() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -68,6 +71,20 @@ public class MainActivity extends AppCompatActivity {
         fetchUserData();
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        List<Record> records = new ArrayList<>();
+// Add sample records
+        records.add(new Record("12:27 PM", "0.5 L"));
+        records.add(new Record("14:45 PM", "0.5 L"));
+        records.add(new Record("16:15 PM", "0.2 L"));
+        records.add(new Record("18:59 PM", "0.7 L"));
+        records.add(new Record("22:27 PM", "1 L"));
+
+        RecordAdapter adapter = new RecordAdapter(records);
+        recyclerView.setAdapter(adapter);
     }
 
     @SuppressLint("DefaultLocale")
