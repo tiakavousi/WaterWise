@@ -5,6 +5,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class DataModel extends AndroidViewModel {
     private final MutableLiveData<Integer> intakeLiveData = new MutableLiveData<>(0);
@@ -12,6 +15,7 @@ public class DataModel extends AndroidViewModel {
     private final MutableLiveData<String> nameLiveData = new MutableLiveData<>("name");
     private final MutableLiveData<String> weightLiveData = new MutableLiveData<>("100");
     private final MutableLiveData<String> genderLiveData = new MutableLiveData<>("Male");
+    private final MutableLiveData<List<Record>> recordsLiveData = new MutableLiveData<>(new ArrayList<>());
 
     public DataModel(Application application) {
         super(application);
@@ -53,6 +57,21 @@ public class DataModel extends AndroidViewModel {
     }
     public void setGender(String newGender){
         genderLiveData.setValue(newGender);
+    }
+
+    public LiveData<List<Record>> getRecords() {
+        return recordsLiveData;
+    }
+    public void addRecord(Record newRecord) {
+        List<Record> currentRecords = recordsLiveData.getValue();
+        if (currentRecords != null) {
+            currentRecords.add(newRecord);
+            recordsLiveData.setValue(currentRecords);
+        }
+    }
+
+    public void clearRecords() {
+        recordsLiveData.setValue(new ArrayList<>());
     }
 }
 

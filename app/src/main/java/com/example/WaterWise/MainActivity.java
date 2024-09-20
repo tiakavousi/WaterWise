@@ -15,14 +15,20 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 public class MainActivity extends AppCompatActivity {
+    private List<Record> records = new ArrayList<>();
+    private RecordAdapter adapter;
     PieChart pieChart;
     BottomNavigationView bottomNavigationView;
     DataModel dataModel;
@@ -46,6 +52,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         pieChart = findViewById(R.id.pieChart);
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecordAdapter(records);
+        recyclerView.setAdapter(adapter);
+
+        dataModel.getRecords().observe(this, records -> {
+            adapter.setRecords(records);
+            adapter.notifyDataSetChanged();
+        });
+
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
@@ -72,19 +89,17 @@ public class MainActivity extends AppCompatActivity {
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Record> records = new ArrayList<>();
-// Add sample records
-        records.add(new Record("12:27 PM", "0.5 L"));
-        records.add(new Record("14:45 PM", "0.5 L"));
-        records.add(new Record("16:15 PM", "0.2 L"));
-        records.add(new Record("18:59 PM", "0.7 L"));
-        records.add(new Record("22:27 PM", "1 L"));
-
-        RecordAdapter adapter = new RecordAdapter(records);
-        recyclerView.setAdapter(adapter);
+//        List<Record> records = new ArrayList<>();
+//// Add sample records
+//        records.add(new Record("12:27 PM", "0.5 L"));
+//        records.add(new Record("14:45 PM", "0.5 L"));
+//        records.add(new Record("16:15 PM", "0.2 L"));
+//        records.add(new Record("18:59 PM", "0.7 L"));
+//        records.add(new Record("22:27 PM", "1 L"));
+//
+//        RecordAdapter adapter = new RecordAdapter(records);
+//        recyclerView.setAdapter(adapter);
     }
 
     @SuppressLint("DefaultLocale")
@@ -132,6 +147,16 @@ public class MainActivity extends AppCompatActivity {
                 dataModel.getWeight().getValue(),
                 dataModel.getGender().getValue()
         );
+
+        // Get current time for the record
+        String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+
+        // Create a new record and add it to the list
+        Record newRecord = new Record(currentTime, amount + " ml");
+        records.add(newRecord);
+        dataModel.addRecord(newRecord);
+        // Notify the adapter that a new item has been added
+        adapter.notifyItemInserted(records.size() - 1);
         Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
     }
 
