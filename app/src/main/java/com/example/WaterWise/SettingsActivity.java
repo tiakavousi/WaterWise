@@ -7,24 +7,25 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import android.widget.EditText;
 
 
 public class SettingsActivity extends AppCompatActivity {
-    ImageView profilePicture;
-    TextView nameValue, genderValue, weightValue, dailyGoalValue;
-    Button signOutButton, signUpButton;
-    DataModel dataModel;
-    FirestoreHelper firestoreHelper = new FirestoreHelper();
-
+    private ImageView profilePicture;
+    private TextView nameValue, genderValue, weightValue, dailyGoalValue;
+    private Button signOutButton, signUpButton;
+    private DataModel dataModel;
+    private FirestoreHelper firestoreHelper = new FirestoreHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +49,6 @@ public class SettingsActivity extends AppCompatActivity {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
         }
-
-
 
         updateProfilePhoto(dataModel.getGoal().getValue() != null ? dataModel.getGoal().getValue() : 2000,
                 dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0);
@@ -110,7 +109,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         dataModel.getGender().observe(this, gender -> genderValue.setText(gender != null ? gender : "Gender not set"));
 
-        dataModel.getWeight().observe(this, weight -> weightValue.setText(weight != null ? weight : "Weight not set"));
+        dataModel.getWeight().observe(this, weight -> weightValue.setText(weight != null ? String.valueOf(weight) : "Weight not set"));
+
 
         dataModel.getGoal().observe(this, goal -> {
             dailyGoalValue.setText(goal != null ? String.format("%sml", goal) : "Goal not set");
@@ -149,7 +149,7 @@ public class SettingsActivity extends AppCompatActivity {
                         dataModel.setName(value);
                         break;
                     case "weight":
-                        dataModel.setWeight(value + " kg");
+                        dataModel.setWeight(Integer.parseInt(value));
                         break;
                     case "dailyGoal":
                         dataModel.setGoal(Integer.parseInt(value));
