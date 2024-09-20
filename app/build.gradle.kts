@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)  // Firebase Realtime Database
     implementation("com.github.TutorialsAndroid:GButton:v1.0.19")
+    implementation("com.google.code.gson:gson:2.8.9")
 
 
     testImplementation(libs.junit)

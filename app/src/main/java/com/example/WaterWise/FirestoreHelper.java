@@ -20,7 +20,7 @@ public class FirestoreHelper {
         Log.d("User ID: " , userId);
     }
 
-    public void saveUserData(String name, int goal, int intake, String weight, String gender) {
+    public void saveUserData(String name, int goal, int intake, int weight, String gender) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("name", name);
         userData.put("goal", goal);
@@ -41,15 +41,14 @@ public class FirestoreHelper {
                     int goal = document.getLong("goal").intValue();
                     int intake = document.getLong("intake").intValue();
                     String name = document.getString("name");
-                    String weight = document.getString("weight");
+                    int weight = document.getLong("weight").intValue();
                     String gender = document.getString("gender");
 
                     dataModel.setGoal(goal);
                     dataModel.setIntake(intake);
-                    dataModel.setName(name != null ? name : "name");
-                    dataModel.setWeight(weight != null ? weight : "100");
-                    dataModel.setGender(gender != null ? gender : "Male");
-
+                    dataModel.setName(name);
+                    dataModel.setWeight(weight);
+                    dataModel.setGender(gender);
                     callback.onDataLoaded(goal, intake);
                 }
             }

@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -21,18 +24,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 
 public class MainActivity extends AppCompatActivity {
     private List<Record> records = new ArrayList<>();
     private RecordAdapter adapter;
-    PieChart pieChart;
-    BottomNavigationView bottomNavigationView;
-    DataModel dataModel;
-    FirestoreHelper firestoreHelper = new FirestoreHelper();
+    private PieChart pieChart;
+    private BottomNavigationView bottomNavigationView;
+    private DataModel dataModel;
+    private FirestoreHelper firestoreHelper = new FirestoreHelper();
 
     private void fetchUserData() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -44,13 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // get ViewModel
-        dataModel = new ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(DataModel.class);
-
-
+        dataModel = new ViewModelProvider(this).get(DataModel.class);
         pieChart = findViewById(R.id.pieChart);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -58,11 +51,11 @@ public class MainActivity extends AppCompatActivity {
         adapter = new RecordAdapter(records);
         recyclerView.setAdapter(adapter);
 
+
         dataModel.getRecords().observe(this, records -> {
             adapter.setRecords(records);
             adapter.notifyDataSetChanged();
         });
-
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
@@ -84,22 +77,17 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-
         fetchUserData();
-        updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
-        Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
-
-
-//        List<Record> records = new ArrayList<>();
-//// Add sample records
-//        records.add(new Record("12:27 PM", "0.5 L"));
-//        records.add(new Record("14:45 PM", "0.5 L"));
-//        records.add(new Record("16:15 PM", "0.2 L"));
-//        records.add(new Record("18:59 PM", "0.7 L"));
-//        records.add(new Record("22:27 PM", "1 L"));
-//
-//        RecordAdapter adapter = new RecordAdapter(records);
-//        recyclerView.setAdapter(adapter);
+        dataModel.getGoal().observe(this, goal -> {
+            if (goal != null && dataModel.getIntake().getValue() != null) {
+                updatePieChart(goal, dataModel.getIntake().getValue());
+            }
+        });
+        dataModel.getIntake().observe(this, intake -> {
+            if (dataModel.getGoal().getValue() != null) {
+                updatePieChart(dataModel.getGoal().getValue(), intake);
+            }
+        });
     }
 
     @SuppressLint("DefaultLocale")
@@ -127,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         pieChart.getData().setDrawValues(false);
         pieChart.invalidate();
     }
-
     private void showAddWaterDialog() {
         AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
         dialog.setOnWaterAmountSelectedListener(this::addWater);
@@ -138,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         int intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0;
         intake += amount;
         dataModel.setIntake(intake);
+
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         // Save updated intake to Firestore
         firestoreHelper.saveUserData(
@@ -157,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
         dataModel.addRecord(newRecord);
         // Notify the adapter that a new item has been added
         adapter.notifyItemInserted(records.size() - 1);
-        Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
     }
 
     @Override
@@ -169,6 +156,5 @@ public class MainActivity extends AppCompatActivity {
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         }
-        Log.d("Goal: " + dataModel.getGoal().getValue() , " intake: " + dataModel.getIntake().getValue());
     }
 }
