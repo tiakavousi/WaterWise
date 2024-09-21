@@ -138,13 +138,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Get current time for the record
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         // Create a new record and add it to the list
-        Record newRecord = new Record(currentTime, amount + " ml");
+        Record newRecord = new Record(currentTime,currentDate, amount + " ml");
         records.add(newRecord);
         dataModel.addRecord(newRecord);
         // Notify the adapter that a new item has been added
         adapter.notifyItemInserted(records.size() - 1);
+        // Save the new record in Firestore's 'records' sub-collection
+        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount + " ml");
     }
 
     @Override

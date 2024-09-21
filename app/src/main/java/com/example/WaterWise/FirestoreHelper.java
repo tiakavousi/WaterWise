@@ -33,6 +33,19 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
 
+    // New method to save a water intake record in the sub-collection
+    public void saveWaterIntakeRecord(String time, String date, String amount) {
+        Map<String, Object> recordData = new HashMap<>();
+        recordData.put("time", time);
+        recordData.put("date", date);
+        recordData.put("amount", amount);
+
+        // Adding the record to the 'records' sub-collection for the current user
+        db.collection("users").document(userId).collection("records").add(recordData)
+                .addOnSuccessListener(documentReference -> Log.d("Firestore", "Record successfully added to sub-collection!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error adding record", e));
+    }
+
     public void fetchUserData(String userId, DataModel dataModel, FirestoreHelperCallback callback) {
         db.collection("users").document(userId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
