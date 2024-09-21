@@ -1,8 +1,6 @@
 package com.example.WaterWise;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -11,10 +9,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.WaterWise.charts.ChartManager;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -32,10 +28,49 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private DataModel dataModel;
     private FirestoreHelper firestoreHelper = new FirestoreHelper();
+    private ChartManager<PieChart> chartManager;
 
     private void fetchUserData() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> updatePieChart(goal, intake));
+    }
+
+    private void updatePieChart(int goal, int intake) {
+        chartManager.configurePieChart(pieChart, goal, intake);
+    }
+
+    private void showAddWaterDialog() {
+        AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
+        dialog.setOnWaterAmountSelectedListener(this::addWater);
+        dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
+    }
+
+    private void addWater(int amount) {
+        int intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0;
+        intake += amount;
+        dataModel.setIntake(intake);
+
+        updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
+        // Save updated intake to Firestore
+        firestoreHelper.saveUserData(
+                dataModel.getName().getValue(),
+                dataModel.getGoal().getValue(),
+                intake,  // Save the updated intake
+                dataModel.getWeight().getValue(),
+                dataModel.getGender().getValue()
+        );
+
+        // Get current time for the record
+        String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        // Create a new record and add it to the list
+        Record newRecord = new Record(currentTime,currentDate, amount + " ml");
+        records.add(newRecord);
+        dataModel.addRecord(newRecord);
+        // Notify the adapter that a new item has been added
+        adapter.notifyItemInserted(records.size() - 1);
+        // Save the new record in Firestore's 'records' sub-collection
+        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount + " ml");
     }
 
     @Override
@@ -44,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         dataModel = new ViewModelProvider(this).get(DataModel.class);
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
+        chartManager = new ChartManager<>(pieChart);
+
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -87,65 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 updatePieChart(dataModel.getGoal().getValue(), intake);
             }
         });
-    }
-
-    @SuppressLint("DefaultLocale")
-    private void updatePieChart(int goal, int intake) {
-        int remaining = goal - intake;
-        int intakePercentage = (intake * 100) / goal;
-        int intakeLiters = intake / 1000;
-
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(intake));
-        if (remaining > 0) {
-            entries.add(new PieEntry(remaining));
-        }
-
-        PieDataSet dataSet = new PieDataSet(entries, "Water Consumption");
-        dataSet.setColors(Color.BLUE, Color.GRAY);
-        PieData data = new PieData(dataSet);
-        pieChart.setData(data);
-        pieChart.setCenterText(String.format("%d%%\n%dL", intakePercentage, intakeLiters));
-        pieChart.setCenterTextSize(40f);
-        pieChart.setHoleColor(android.R.color.holo_blue_bright);
-        pieChart.getDescription().setEnabled(false);
-        pieChart.setHoleRadius(58f);
-        pieChart.getLegend().setEnabled(false);
-        pieChart.getData().setDrawValues(false);
-        pieChart.invalidate();
-    }
-    private void showAddWaterDialog() {
-        AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
-        dialog.setOnWaterAmountSelectedListener(this::addWater);
-        dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
-    }
-
-    private void addWater(int amount) {
-        int intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0;
-        intake += amount;
-        dataModel.setIntake(intake);
-
-        updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
-        // Save updated intake to Firestore
-        firestoreHelper.saveUserData(
-                dataModel.getName().getValue(),
-                dataModel.getGoal().getValue(),
-                intake,  // Save the updated intake
-                dataModel.getWeight().getValue(),
-                dataModel.getGender().getValue()
-        );
-
-        // Get current time for the record
-        String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        // Create a new record and add it to the list
-        Record newRecord = new Record(currentTime,currentDate, amount + " ml");
-        records.add(newRecord);
-        dataModel.addRecord(newRecord);
-        // Notify the adapter that a new item has been added
-        adapter.notifyItemInserted(records.size() - 1);
-        // Save the new record in Firestore's 'records' sub-collection
-        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount + " ml");
     }
 
     @Override
