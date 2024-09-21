@@ -4,6 +4,7 @@ package com.example.WaterWise;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
@@ -13,8 +14,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DataModel extends AndroidViewModel {
 
@@ -30,6 +34,8 @@ public class DataModel extends AndroidViewModel {
     private static final int DEFAULT_WEIGHT = 0; // Default weight
     private static final String DEFAULT_NAME = ""; // Default empty name
     private static final String DEFAULT_GENDER = ""; // Default empty gender
+    private static final String KEY_LAST_RESET_DATE = "key_last_reset_date"; // Added key for the last reset date
+
 
     private SharedPreferences sharedPreferences;
     private Gson gson;
@@ -52,7 +58,27 @@ public class DataModel extends AndroidViewModel {
         String sharedPrefsName = getSharedPrefsName(); // Use user-specific preferences
         sharedPreferences = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         gson = new Gson();
+        checkAndResetDataIfNeeded(); // Check the date on app launch
         loadAllData();
+    }
+    // Check if today's date is different from the saved date, and reset if needed
+    private void checkAndResetDataIfNeeded() {
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String lastResetDate = sharedPreferences.getString(KEY_LAST_RESET_DATE, null);
+
+
+        if (lastResetDate == null || !lastResetDate.equals(currentDate)) {
+            Log.d("DataModel", "Resetting data for new day: " + currentDate);
+            // It's a new day, reset the intake and records
+            clearIntakeAndRecords();
+
+            // Save the current date as the last reset date
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(KEY_LAST_RESET_DATE, currentDate);
+            editor.apply();
+        } else{
+            Log.d("DataModel", "No reset needed. Last reset was on: " + lastResetDate);
+        }
     }
 
     // Getters and setters

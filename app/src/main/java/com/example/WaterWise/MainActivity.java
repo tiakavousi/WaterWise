@@ -41,9 +41,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
         dataModel = new ViewModelProvider(this).get(DataModel.class);
+        setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
