@@ -60,17 +60,14 @@ public class MainActivity extends AppCompatActivity {
                 dataModel.getGender().getValue()
         );
 
-        // Get current time for the record
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        // Create a new record and add it to the list
-        Record newRecord = new Record(currentTime,currentDate, amount + " ml");
+        Record newRecord = new Record(currentTime,currentDate, amount);
         records.add(newRecord);
         dataModel.addRecord(newRecord);
         // Notify the adapter that a new item has been added
         adapter.notifyItemInserted(records.size() - 1);
-        // Save the new record in Firestore's 'records' sub-collection
-        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount + " ml");
+        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount);
     }
 
     @Override
@@ -81,12 +78,10 @@ public class MainActivity extends AppCompatActivity {
         pieChart = findViewById(R.id.pieChart);
         chartManager = new ChartManager<>(pieChart);
 
-
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RecordAdapter(records);
         recyclerView.setAdapter(adapter);
-
 
         dataModel.getRecords().observe(this, records -> {
             adapter.setRecords(records);

@@ -29,7 +29,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
     public void onBindViewHolder(@NonNull RecordViewHolder holder, int position) {
         Record record = recordList.get(position);
         holder.timeTextView.setText(record.getTime());
-        holder.amountTextView.setText(record.getAmount());
+        holder.amountTextView.setText(record.getAmount() + " ml");
     }
 
     @Override

@@ -3,9 +3,9 @@ package com.example.WaterWise;
 public class Record {
     private String time;
     private String date;
-    private String amount;
+    private int amount;
 
-    public Record(String time, String date, String amount) {
+    public Record(String time, String date, int amount) {
         this.time = time;
         this.date = date;
         this.amount = amount;
@@ -18,7 +18,7 @@ public class Record {
         return time;
     }
 
-    public String getAmount() {
+    public int getAmount() {
         return amount;
     }
 }

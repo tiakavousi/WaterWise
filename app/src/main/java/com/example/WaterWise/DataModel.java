@@ -29,12 +29,12 @@ public class DataModel extends AndroidViewModel {
     private static final String KEY_WEIGHT = "key_weight";
     private static final String KEY_GENDER = "key_gender";
 
-    private static final int DEFAULT_GOAL = 2000; // Default goal in ml
-    private static final int DEFAULT_INTAKE = 0; // Default intake in ml
-    private static final int DEFAULT_WEIGHT = 0; // Default weight
-    private static final String DEFAULT_NAME = ""; // Default empty name
-    private static final String DEFAULT_GENDER = ""; // Default empty gender
-    private static final String KEY_LAST_RESET_DATE = "key_last_reset_date"; // Added key for the last reset date
+    private static final int DEFAULT_GOAL = 2000;
+    private static final int DEFAULT_INTAKE = 0;
+    private static final int DEFAULT_WEIGHT = 0;
+    private static final String DEFAULT_NAME = "";
+    private static final String DEFAULT_GENDER = "";
+    private static final String KEY_LAST_RESET_DATE = "key_last_reset_date";
 
 
     private SharedPreferences sharedPreferences;
@@ -66,18 +66,23 @@ public class DataModel extends AndroidViewModel {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String lastResetDate = sharedPreferences.getString(KEY_LAST_RESET_DATE, null);
 
-
         if (lastResetDate == null || !lastResetDate.equals(currentDate)) {
-            Log.d("DataModel", "Resetting data for new day: " + currentDate);
-            // It's a new day, reset the intake and records
-            clearIntakeAndRecords();
+            // new day clear intake
+            setValueAndSave(intake, 0, KEY_INTAKE);
+            saveToPreferences(KEY_INTAKE, 0);
+            Log.d("!!!!!! !!!!!!! Intake After RESET", getIntake().getValue() + "");
 
-            // Save the current date as the last reset date
+            // new day clear records
+            List<Record> emptyRecords = new ArrayList<>();
+            setValueAndSave(records, emptyRecords, KEY_RECORDS);
+            saveToPreferences(KEY_RECORDS, gson.toJson(emptyRecords));
+
+            // update the last reset date
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(KEY_LAST_RESET_DATE, currentDate);
             editor.apply();
         } else{
-            Log.d("DataModel", "No reset needed. Last reset was on: " + lastResetDate);
+            Log.d("DataModel", "No reset needed.");
         }
     }
 
@@ -149,15 +154,5 @@ public class DataModel extends AndroidViewModel {
             editor.putString(key, (String) value);
         }
         editor.apply();
-    }
-
-    public void clearIntakeAndRecords() {
-        // Clear intake
-        setValueAndSave(intake, 0, KEY_INTAKE);
-
-        // Clear records
-        List<Record> emptyRecords = new ArrayList<>();
-        setValueAndSave(records, emptyRecords, KEY_RECORDS);
-        saveToPreferences(KEY_RECORDS, gson.toJson(emptyRecords));
     }
 }
