@@ -19,9 +19,9 @@ public class ChartManager<T extends Chart<?>> {
 
     // Pie chart configuration
     public void configurePieChart(PieChart pieChart, int goal, int intake) {
-        int remainingAmount = goal - intake;
-        int intakePercentage = (intake * 100) / goal;
-        int intakeInLiters = intake / 1000;
+        float remainingAmount = goal - intake;
+        float intakePercentage = (intake * 100f) / goal;
+        float intakeInLiters = intake / 1000f;
 
         ArrayList<PieEntry> pieEntries = new ArrayList<>();
         pieEntries.add(new PieEntry(intake));
@@ -33,7 +33,11 @@ public class ChartManager<T extends Chart<?>> {
         pieDataSet.setColors(Color.BLUE, Color.GRAY);
         PieData pieData = new PieData(pieDataSet);
         pieChart.setData(pieData);
-        pieChart.setCenterText(String.format("%d%%\n%dL", intakePercentage, intakeInLiters));
+        String centerText = String.format("%s%%\n%sL",
+                (intakePercentage % 1 == 0 ? String.format("%.0f", intakePercentage) : String.format("%.1f", intakePercentage)),
+                (intakeInLiters % 1 == 0 ? String.format("%.0f", intakeInLiters) : String.format("%.1f", intakeInLiters))
+        );
+        pieChart.setCenterText(centerText);
         pieChart.setCenterTextSize(40f);
         pieChart.setHoleColor(android.R.color.holo_blue_bright);
         pieChart.getDescription().setEnabled(false);
