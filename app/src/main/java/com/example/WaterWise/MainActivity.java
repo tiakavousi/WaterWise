@@ -6,8 +6,6 @@ import android.view.Menu;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.WaterWise.charts.ChartManager;
 import com.github.mikephil.charting.charts.PieChart;
@@ -65,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
         Record newRecord = new Record(currentTime,currentDate, amount);
         records.add(newRecord);
         dataModel.addRecord(newRecord);
-        // Notify the adapter that a new item has been added
-        adapter.notifyItemInserted(records.size() - 1);
         firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount);
     }
 
@@ -77,16 +73,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         chartManager = new ChartManager<>(pieChart);
-
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecordAdapter(records);
-        recyclerView.setAdapter(adapter);
-
-        dataModel.getRecords().observe(this, records -> {
-            adapter.setRecords(records);
-            adapter.notifyDataSetChanged();
-        });
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
@@ -125,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         fetchUserData();
-
-        // Ensure the pie chart is up to date when returning to MainActivity
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         }
