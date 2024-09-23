@@ -6,28 +6,40 @@ import android.view.Menu;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
-
-    private FirestoreHelper firestoreHelper;
+    private List<Record> records = new ArrayList<>();
+    private RecordAdapter adapter;
+    private DataModel dataModel;
+    private FirestoreHelper firestoreHelper = new FirestoreHelper();
     private TextView dayOfWeekTextView, dateTextView;
+    private String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        dataModel = new ViewModelProvider(this).get(DataModel.class);
+        firestoreHelper = new FirestoreHelper();
 
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
-        firestoreHelper = new FirestoreHelper();
 
         displayDayOfWeek();
+        setupRecyclerView();
+        fetchTodaysRecords();
 
         // Bottom NavBar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -46,6 +58,20 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecordAdapter(records);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void fetchTodaysRecords() {
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        dataModel.getRecords().observe(this, records -> {
+            adapter.setRecords(records);
+            adapter.notifyDataSetChanged();
+        });
+    }
     public void displayDayOfWeek() {
         Date currentDate = new Date();
 
