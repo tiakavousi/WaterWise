@@ -110,6 +110,8 @@ public class DataModel extends AndroidViewModel {
             records.setValue(currentRecords);
             saveToPreferences(KEY_RECORDS, gson.toJson(currentRecords));
         }
+        Log.d("DataModel!!!!! ", "Record Date: " + record.getDate());
+
     }
 
     // Load all data at once

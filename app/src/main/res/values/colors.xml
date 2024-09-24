@@ -10,7 +10,7 @@
 
     <!-- Gray shades -->
     <color name="gray">#9E9E9E</color> <!-- Medium Gray -->
-    <color name="gray_dark">#616161</color> <!-- Dark Gray -->
+    <color name="gray_dark">#313131</color> <!-- Dark Gray -->
     <color name="gray_light">#E0E0E0</color> <!-- Light Gray -->
 
 </resources>

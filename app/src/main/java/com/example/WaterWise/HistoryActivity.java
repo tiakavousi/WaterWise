@@ -2,6 +2,7 @@ package com.example.WaterWise;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
@@ -24,7 +25,7 @@ public class HistoryActivity extends AppCompatActivity {
     private RecordAdapter adapter;
     private DataModel dataModel;
     private FirestoreHelper firestoreHelper = new FirestoreHelper();
-    private TextView dayOfWeekTextView, dateTextView;
+    private TextView dayOfWeekTextView, dateTextView, goalTextView, remainingTextView;
     private String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     @Override
@@ -36,10 +37,14 @@ public class HistoryActivity extends AppCompatActivity {
 
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
+        goalTextView = findViewById(R.id.goal_text);
+        remainingTextView = findViewById(R.id.remaining_text);
 
         displayDayOfWeek();
         setupRecyclerView();
         fetchTodaysRecords();
+        observeGoalAndIntake();
+
 
         // Bottom NavBar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -57,6 +62,21 @@ public class HistoryActivity extends AppCompatActivity {
             } else return itemId == R.id.nav_history;
         });
     }
+    private void observeGoalAndIntake() {
+        dataModel.getGoal().observe(this, goal -> {
+            double goalInLiters = goal / 1000.0;
+            String goalText = (goalInLiters % 1 == 0) ? String.format("%.0f L", goalInLiters) : String.format("%.1f L", goalInLiters);
+            goalTextView.setText("Goal: " + goalText);
+        });
+
+        dataModel.getIntake().observe(this, intake -> {
+            double intakeInLiters = intake / 1000.0;
+            double goalInLiters = dataModel.getGoal().getValue() / 1000.0;
+            double remainingInLiters = goalInLiters - intakeInLiters;
+            String remainingText = (remainingInLiters % 1 == 0) ? String.format("%.0f L", (remainingInLiters > 0 ? remainingInLiters : 0)) : String.format("%.1f L", (remainingInLiters > 0 ? remainingInLiters : 0));
+            remainingTextView.setText("Remaining: " + remainingText);
+        });
+    }
 
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -66,11 +86,13 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void fetchTodaysRecords() {
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         dataModel.getRecords().observe(this, records -> {
+            Log.d("HistoryActivity!!!! ", "Fetched Records Count: " + records.size());
             adapter.setRecords(records);
             adapter.notifyDataSetChanged();
+
         });
+
     }
     public void displayDayOfWeek() {
         Date currentDate = new Date();
