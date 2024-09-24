@@ -7,10 +7,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class FirestoreHelper {
 
@@ -97,6 +101,86 @@ public class FirestoreHelper {
             }
         });
     }
+
+
+    public void fetchHistory(HistoryCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // First, get the distinct days from the records collection
+        db.collection("users").document(userId).collection("records")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Set<String> uniqueDates = new HashSet<>();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String date = document.getString("date");
+                            if (date != null) {
+                                uniqueDates.add(date);  // Add the date to the set
+                            }
+                        }
+
+                        // Log the number of distinct days
+                        Log.d("FirestoreHelper", "Distinct days found: " + uniqueDates.size());
+
+                        // If there are distinct days, fetch the history for those days
+                        if (!uniqueDates.isEmpty()) {
+                            fetchHistoryForDays(new ArrayList<>(uniqueDates), callback);
+                        } else {
+                            // No distinct days, return an empty list
+                            callback.onHistoryLoaded(new ArrayList<>());
+                        }
+                    } else {
+                        Log.w("FirestoreHelper", "Error fetching records", task.getException());
+                        callback.onHistoryLoaded(new ArrayList<>());  // Return an empty list on failure
+                    }
+                });
+    }
+
+    private void fetchHistoryForDays(List<String> uniqueDates, HistoryCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        List<HistoryRecord> historyList = new ArrayList<>();
+
+        for (String date : uniqueDates) {
+            db.collection("users").document(userId).collection("records")
+                    .whereEqualTo("date", date)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        int totalIntake = 0;
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                int intake = document.getLong("amount").intValue();
+                                totalIntake += intake;
+                            }
+                        }
+
+                        int finalTotalIntake = totalIntake;
+                        db.collection("users").document(userId).get().addOnCompleteListener(goalTask -> {
+                            if (goalTask.isSuccessful() && goalTask.getResult() != null) {
+                                int goal = goalTask.getResult().getLong("goal").intValue();
+                                int percentage = goal > 0 ? (finalTotalIntake * 100 / goal) : 0;
+
+                                // Create a history record
+                                HistoryRecord record = new HistoryRecord(date, finalTotalIntake, percentage);
+                                historyList.add(record);
+                                Log.d("FirestoreHelper", "Fetched history size: " + historyList.size());
+
+                                // Once all the records are fetched, return the callback
+                                if (historyList.size() == uniqueDates.size()) {
+                                    Log.d("FirestoreHelper", "Total history fetched: " + historyList.size());
+                                    callback.onHistoryLoaded(historyList);
+                                }
+                            }
+                        });
+                    });
+        }
+    }
+
+
+    // Create an interface for the callback
+    public interface HistoryCallback {
+        void onHistoryLoaded(List<HistoryRecord> historyList);
+    }
+
 
     // Create an interface for the callback
     public interface FirestoreHelperCallback {
