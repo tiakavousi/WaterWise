@@ -45,6 +45,17 @@ public class HistoryActivity extends AppCompatActivity {
         fetchTodaysRecords();
         observeGoalAndIntake();
 
+        FirestoreHelper firestoreHelper = new FirestoreHelper();
+        RecyclerView recyclerView2 = findViewById(R.id.recyclerView);
+        recyclerView2.setLayoutManager(new LinearLayoutManager(this));
+
+        firestoreHelper.fetchHistory(historyList -> {
+            Log.d("MainActivity!!!!", "Setting adapter with history size: " + historyList.size());
+            HistoryAdapter adapter = new HistoryAdapter(historyList);
+            recyclerView2.setAdapter(adapter);
+        });
+
+
 
         // Bottom NavBar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
