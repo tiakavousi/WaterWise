@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/black">
+    android:background="@drawable/pagebkg">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/dateCard"
@@ -14,7 +14,7 @@
         android:layout_margin="16dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/gray_dark"
+        app:cardBackgroundColor="@color/dark_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sunday"
                 android:textSize="24sp"
-                android:textColor="@color/blue"
+                android:textColor="@color/black"
                 android:fontFamily="sans-serif-medium" />
 
             <TextView
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/blue" />
+                android:textColor="@color/black" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardCornerRadius="8dp"
-        app:cardBackgroundColor="@color/gray_dark"
+        app:cardBackgroundColor="@color/dark_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dateCard">
@@ -69,7 +69,7 @@
                 android:text="Your daily goal: 0 ml"
                 android:textSize="20dp"
                 android:textStyle="bold"
-                android:textColor="@color/blue" />
+                android:textColor="@color/black" />
             <TextView
                 android:id="@+id/remaining_text"
                 android:layout_width="wrap_content"
@@ -77,36 +77,23 @@
                 android:text="Remaining: 0 ml"
                 android:textSize="20dp"
                 android:textStyle="bold"
-                android:textColor="@color/blue" />
+                android:textColor="@color/black" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:id="@+id/todaysRecordsTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Today's Records"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        android:textColor="@color/blue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/remaining_goal_card"/>
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:textColor="@color/blue"
+        android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/todaysRecordsTitle"
+        app:layout_constraintTop_toBottomOf="@id/remaining_goal_card"
         tools:listitem="@layout/item_record" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

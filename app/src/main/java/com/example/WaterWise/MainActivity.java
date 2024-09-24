@@ -2,10 +2,13 @@ package com.example.WaterWise;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.WaterWise.charts.ChartManager;
 import com.github.mikephil.charting.charts.PieChart;
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         firestoreHelper.saveUserData(
                 dataModel.getName().getValue(),
                 dataModel.getGoal().getValue(),
-                intake,  // Save the updated intake
                 dataModel.getWeight().getValue(),
                 dataModel.getGender().getValue()
         );
@@ -65,6 +67,22 @@ public class MainActivity extends AppCompatActivity {
         dataModel.addRecord(newRecord);
         firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount);
     }
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecordAdapter(records);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void fetchTodaysRecords() {
+        dataModel.getRecords().observe(this, records -> {
+            Log.d("HistoryActivity!!!! ", "Fetched Records Count: " + records.size());
+            adapter.setRecords(records);
+            adapter.notifyDataSetChanged();
+
+        });
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         chartManager = new ChartManager<>(pieChart);
-
+        setupRecyclerView();
+        fetchTodaysRecords();
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
         menu.findItem(R.id.nav_home).setVisible(false);

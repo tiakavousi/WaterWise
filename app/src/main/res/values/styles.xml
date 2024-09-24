@@ -10,7 +10,4 @@
 <!--    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">-->
 <!--        <item name="bottomSheetStyle">@style/Widget.Design.BottomSheet.Modal</item>-->
 <!--    </style>-->
-    <style name="YourCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/black</item>
-    </style>
 </resources>
