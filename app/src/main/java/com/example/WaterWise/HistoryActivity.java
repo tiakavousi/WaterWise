@@ -15,14 +15,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
-    private List<Record> records = new ArrayList<>();
-    private RecordAdapter adapter;
     private DataModel dataModel;
     private FirestoreHelper firestoreHelper = new FirestoreHelper();
     private TextView dayOfWeekTextView, dateTextView, goalTextView, remainingTextView;
@@ -33,7 +29,7 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         dataModel = new ViewModelProvider(this).get(DataModel.class);
-        firestoreHelper = new FirestoreHelper();
+
 
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
@@ -41,12 +37,10 @@ public class HistoryActivity extends AppCompatActivity {
         remainingTextView = findViewById(R.id.remaining_text);
 
         displayDayOfWeek();
-        setupRecyclerView();
-        fetchTodaysRecords();
         observeGoalAndIntake();
 
         FirestoreHelper firestoreHelper = new FirestoreHelper();
-        RecyclerView recyclerView2 = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(this));
 
         firestoreHelper.fetchHistory(historyList -> {
@@ -54,8 +48,6 @@ public class HistoryActivity extends AppCompatActivity {
             HistoryAdapter adapter = new HistoryAdapter(historyList);
             recyclerView2.setAdapter(adapter);
         });
-
-
 
         // Bottom NavBar
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -89,22 +81,6 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-    private void setupRecyclerView() {
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecordAdapter(records);
-        recyclerView.setAdapter(adapter);
-    }
-
-    private void fetchTodaysRecords() {
-        dataModel.getRecords().observe(this, records -> {
-            Log.d("HistoryActivity!!!! ", "Fetched Records Count: " + records.size());
-            adapter.setRecords(records);
-            adapter.notifyDataSetChanged();
-
-        });
-
-    }
     public void displayDayOfWeek() {
         Date currentDate = new Date();
 

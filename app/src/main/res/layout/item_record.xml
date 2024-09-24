@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:text="12:27 PM"
         android:textSize="16sp"
-        android:textColor="@color/blue"/>
+        android:textColor="@color/black"/>
 
     <TextView
         android:id="@+id/amountTextView"
@@ -20,5 +20,5 @@
         android:layout_height="wrap_content"
         android:text="0.5 L"
         android:textSize="16sp"
-        android:textColor="@color/blue"/>
+        android:textColor="@color/black"/>
 </LinearLayout>

@@ -1,11 +1,9 @@
 package com.example.WaterWise;
 
 import android.util.Log;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,17 +19,15 @@ public class FirestoreHelper {
     private final FirebaseFirestore db;
     private final String userId;
 
-
     public FirestoreHelper() {
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    public void saveUserData(String name, int goal, int intake, int weight, String gender) {
+    public void saveUserData(String name, int goal, int weight, String gender) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("name", name);
         userData.put("goal", goal);
-//        userData.put("intake", intake);
         userData.put("weight", weight);
         userData.put("gender", gender);
 
@@ -40,14 +36,12 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
 
-    // New method to save a water intake record in the sub-collection
     public void saveWaterIntakeRecord(String time, String date, int amount) {
         Map<String, Object> recordData = new HashMap<>();
         recordData.put("time", time);
         recordData.put("date", date);
         recordData.put("amount", amount);
 
-        // Adding the record to the 'records' sub-collection for the current user
         db.collection("users").document(userId).collection("records").add(recordData)
                 .addOnSuccessListener(documentReference -> Log.d("Firestore", "Record successfully added to sub-collection!"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error adding record", e));
@@ -79,22 +73,17 @@ public class FirestoreHelper {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     int goal = document.getLong("goal").intValue();
-//                  int intake = document.getLong("intake").intValue();
                     String name = document.getString("name");
                     int weight = document.getLong("weight").intValue();
                     String gender = document.getString("gender");
 
-                    // Fetch daily intake asynchronously
                     fetchDailyIntake(userId, currentDate, totalIntake -> {
-                        // Set the values only after the intake is fetched
                         dataModel.setGoal(goal);
                         dataModel.setIntake(totalIntake);
                         Log.d("!!!!! INTAKE UPDATE", totalIntake + "");
                         dataModel.setName(name);
                         dataModel.setWeight(weight);
                         dataModel.setGender(gender);
-
-                        // Call the callback after setting all the data
                         callback.onDataLoaded(goal, totalIntake);
                     });
                 }
@@ -106,7 +95,6 @@ public class FirestoreHelper {
     public void fetchHistory(HistoryCallback callback) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // First, get the distinct days from the records collection
         db.collection("users").document(userId).collection("records")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -115,18 +103,15 @@ public class FirestoreHelper {
                         for (DocumentSnapshot document : task.getResult()) {
                             String date = document.getString("date");
                             if (date != null) {
-                                uniqueDates.add(date);  // Add the date to the set
+                                uniqueDates.add(date);
                             }
                         }
 
-                        // Log the number of distinct days
                         Log.d("FirestoreHelper", "Distinct days found: " + uniqueDates.size());
 
-                        // If there are distinct days, fetch the history for those days
                         if (!uniqueDates.isEmpty()) {
                             fetchHistoryForDays(new ArrayList<>(uniqueDates), callback);
                         } else {
-                            // No distinct days, return an empty list
                             callback.onHistoryLoaded(new ArrayList<>());
                         }
                     } else {
@@ -164,7 +149,6 @@ public class FirestoreHelper {
                                 historyList.add(record);
                                 Log.d("FirestoreHelper", "Fetched history size: " + historyList.size());
 
-                                // Once all the records are fetched, return the callback
                                 if (historyList.size() == uniqueDates.size()) {
                                     Log.d("FirestoreHelper", "Total history fetched: " + historyList.size());
                                     callback.onHistoryLoaded(historyList);
@@ -175,22 +159,15 @@ public class FirestoreHelper {
         }
     }
 
-
-    // Create an interface for the callback
     public interface HistoryCallback {
         void onHistoryLoaded(List<HistoryRecord> historyList);
     }
 
-
-    // Create an interface for the callback
     public interface FirestoreHelperCallback {
         void onDataLoaded(int goal, int intake);
     }
 
-    // Callback interface
     public interface intakeCallback {
         void onIntakeLoaded(int totalIntake);
     }
-
-
 }

@@ -159,7 +159,6 @@ public class SettingsActivity extends AppCompatActivity {
                 firestoreHelper.saveUserData(
                         dataModel.getName().getValue(),
                         dataModel.getGoal().getValue(),
-                        dataModel.getIntake().getValue(),
                         dataModel.getWeight().getValue(),
                         dataModel.getGender().getValue()
                 );
@@ -183,7 +182,6 @@ public class SettingsActivity extends AppCompatActivity {
             firestoreHelper.saveUserData(
                     dataModel.getName().getValue(),
                     dataModel.getGoal().getValue(),
-                    dataModel.getIntake().getValue(),
                     dataModel.getWeight().getValue(),
                     dataModel.getGender().getValue()
             );
