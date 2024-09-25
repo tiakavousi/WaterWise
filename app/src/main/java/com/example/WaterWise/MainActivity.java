@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DataModel dataModel;
     private FirestoreHelper firestoreHelper = new FirestoreHelper();
     private ChartManager<PieChart> chartManager;
+    private  TextView recordsMessage;
 
     private void fetchUserData() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -76,12 +79,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchTodaysRecords() {
         dataModel.getRecords().observe(this, records -> {
-            Log.d("HistoryActivity!!!! ", "Fetched Records Count: " + records.size());
-            adapter.setRecords(records);
-            adapter.notifyDataSetChanged();
-
+            if (records.isEmpty()) {
+                recordsMessage.setText("Stay hydrated!");
+            } else {
+                recordsMessage.setVisibility(View.GONE);
+                Log.d("HistoryActivity!!!! ", "Fetched Records Count: " + records.size());
+                adapter.setRecords(records);
+                adapter.notifyDataSetChanged();
+            }
         });
-
     }
 
     @Override
@@ -90,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
         dataModel = new ViewModelProvider(this).get(DataModel.class);
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
+        recordsMessage = findViewById(R.id.recordsMessage);
+
         chartManager = new ChartManager<>(pieChart);
         setupRecyclerView();
         fetchTodaysRecords();

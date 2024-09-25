@@ -31,7 +31,7 @@ public class DataModel extends AndroidViewModel {
 
     private static final int DEFAULT_GOAL = 2000;
     private static final int DEFAULT_INTAKE = 0;
-    private static final int DEFAULT_WEIGHT = 0;
+    private static final int DEFAULT_WEIGHT = 40;
     private static final String DEFAULT_NAME = "User";
     private static final String DEFAULT_GENDER = "Female";
     private static final String KEY_LAST_RESET_DATE = "key_last_reset_date";
@@ -55,10 +55,10 @@ public class DataModel extends AndroidViewModel {
 
     public DataModel(Application application) {
         super(application);
-        String sharedPrefsName = getSharedPrefsName(); // Use user-specific preferences
+        String sharedPrefsName = getSharedPrefsName();
         sharedPreferences = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         gson = new Gson();
-        checkAndResetDataIfNeeded(); // Check the date on app launch
+        checkAndResetDataIfNeeded();
         loadAllData();
     }
     // Check if today's date is different from the saved date, and reset if needed
