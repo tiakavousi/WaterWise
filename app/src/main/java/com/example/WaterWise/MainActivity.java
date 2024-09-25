@@ -141,5 +141,6 @@ public class MainActivity extends AppCompatActivity {
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         }
+        Log.d("name in main : ", dataModel.getName().getValue()+"");
     }
 }
