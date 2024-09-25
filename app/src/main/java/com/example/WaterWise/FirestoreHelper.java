@@ -145,7 +145,7 @@ public class FirestoreHelper {
                                 int percentage = goal > 0 ? (finalTotalIntake * 100 / goal) : 0;
 
                                 // Create a history record
-                                HistoryRecord record = new HistoryRecord(date, finalTotalIntake, percentage);
+                                HistoryRecord record = new HistoryRecord(date, percentage);
                                 historyList.add(record);
                                 Log.d("FirestoreHelper", "Fetched history size: " + historyList.size());
 

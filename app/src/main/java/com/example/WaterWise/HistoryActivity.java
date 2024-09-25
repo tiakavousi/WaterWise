@@ -12,17 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
     private DataModel dataModel;
-    private FirestoreHelper firestoreHelper = new FirestoreHelper();
     private TextView dayOfWeekTextView, dateTextView, goalTextView, remainingTextView;
-    private String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +44,23 @@ public class HistoryActivity extends AppCompatActivity {
 
         firestoreHelper.fetchHistory(historyList -> {
             Log.d("MainActivity!!!!", "Setting adapter with history size: " + historyList.size());
+            for (HistoryRecord record : historyList) {
+                Log.d("Before Sorting", "Date: " + record.getDate());
+            }
+            Collections.sort(historyList, new Comparator<HistoryRecord>() {
+                @Override
+                public int compare(HistoryRecord record1, HistoryRecord record2) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    try {
+                        Date date1 = dateFormat.parse(record1.getDate());
+                        Date date2 = dateFormat.parse(record2.getDate());
+                        return date2.compareTo(date1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return 0;
+                }
+            });
             HistoryAdapter adapter = new HistoryAdapter(historyList);
             recyclerView2.setAdapter(adapter);
         });
