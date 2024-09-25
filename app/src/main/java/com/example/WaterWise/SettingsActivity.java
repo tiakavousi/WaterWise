@@ -105,11 +105,12 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void observeDataModel() {
-        dataModel.getName().observe(this, name -> nameValue.setText(name != null ? name : "name not set"));
-
-        dataModel.getGender().observe(this, gender -> genderValue.setText(gender != null ? gender : "Gender not set"));
-
-        dataModel.getWeight().observe(this, weight -> weightValue.setText(weight != null ? String.valueOf(weight) : "Weight not set"));
+        //dataModel.getName().observe(this, name -> nameValue.setText(name != null ? name : "name not set"));
+        dataModel.getName().observe(this, name -> nameValue.setText(name));
+        //dataModel.getGender().observe(this, gender -> genderValue.setText(gender != null ? gender : "Gender not set"));
+        dataModel.getGender().observe(this, gender -> genderValue.setText(gender));
+        //dataModel.getWeight().observe(this, weight -> weightValue.setText(weight != null ? String.valueOf(weight) : "Weight not set"));
+        dataModel.getWeight().observe(this, weight -> weightValue.setText(String.valueOf(weight)));
 
 
         dataModel.getGoal().observe(this, goal -> {

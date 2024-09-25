@@ -32,8 +32,8 @@ public class DataModel extends AndroidViewModel {
     private static final int DEFAULT_GOAL = 2000;
     private static final int DEFAULT_INTAKE = 0;
     private static final int DEFAULT_WEIGHT = 0;
-    private static final String DEFAULT_NAME = "";
-    private static final String DEFAULT_GENDER = "";
+    private static final String DEFAULT_NAME = "User";
+    private static final String DEFAULT_GENDER = "Female";
     private static final String KEY_LAST_RESET_DATE = "key_last_reset_date";
 
 
@@ -135,7 +135,12 @@ public class DataModel extends AndroidViewModel {
         if (defaultValue instanceof Integer) {
             liveData.setValue((T) Integer.valueOf(sharedPreferences.getInt(key, (Integer) defaultValue)));
         } else if (defaultValue instanceof String) {
-            liveData.setValue((T) sharedPreferences.getString(key, (String) defaultValue));
+            String value = sharedPreferences.getString(key, (String) defaultValue);
+            if (value != null && !value.isEmpty()) {
+                liveData.setValue((T) value);
+            } else {
+                liveData.setValue(defaultValue);
+            }
         }
     }
 
