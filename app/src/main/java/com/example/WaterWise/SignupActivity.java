@@ -2,6 +2,7 @@ package com.example.WaterWise;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,6 +64,7 @@ public class SignupActivity extends AppCompatActivity {
                                 String userId = auth.getCurrentUser().getUid();
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("signUpDate", signUpDate);
+                                Log.d("SIGNUP DATE", signUpDate+"");
 
                                 db.collection("users").document(userId).set(userData).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override

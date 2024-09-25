@@ -31,7 +31,7 @@ public class FirestoreHelper {
         userData.put("weight", weight);
         userData.put("gender", gender);
 
-        db.collection("users").document(userId).set(userData)
+        db.collection("users").document(userId).update(userData)
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "User data successfully written!"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
