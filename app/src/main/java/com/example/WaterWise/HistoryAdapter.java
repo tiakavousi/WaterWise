@@ -30,13 +30,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         HistoryRecord record = historyList.get(position);
-
         holder.dateTextView.setText(record.getDate());
         holder.percentageTextView.setText(record.getPercentage() + "%");
-        holder.intakeTextView.setText(record.getIntake() + " L");
         Log.d("HistoryAdapter", "Displaying history item at position: " + position + " with date: " + record.getDate());
-
-        // You can set colors or draw a circular progress bar to represent the percentage visually, similar to the image.
     }
 
     @Override
@@ -48,13 +44,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public static class HistoryViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView;
         TextView percentageTextView;
-        TextView intakeTextView;
 
         public HistoryViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
             percentageTextView = itemView.findViewById(R.id.percentageTextView);
-            intakeTextView = itemView.findViewById(R.id.intakeTextView);
         }
     }
 }
