@@ -18,9 +18,12 @@ public class ChartManager<T extends Chart<?>> {
     }
 
     // Pie chart configuration
-    public void configurePieChart(PieChart pieChart, int goal, int intake) {
+    public void configurePieChart(PieChart pieChart, int goal, Integer intake) {
+        if (intake == null) {
+            intake = 0;
+        }
         float remainingAmount = goal - intake;
-        float intakePercentage = (intake * 100f) / goal;
+        float intakePercentage = intake == 0? 0 : (intake * 100f) / goal;
         float intakeInLiters = intake / 1000f;
 
         ArrayList<PieEntry> pieEntries = new ArrayList<>();

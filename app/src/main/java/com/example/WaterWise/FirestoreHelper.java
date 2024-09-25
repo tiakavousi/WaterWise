@@ -72,10 +72,12 @@ public class FirestoreHelper {
             if (task.isSuccessful() && task.getResult() != null) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    int goal = document.getLong("goal").intValue();
+                    Long goalLong = document.getLong("goal");
                     String name = document.getString("name");
-                    int weight = document.getLong("weight").intValue();
+                    Long weightLong = document.getLong("weight");
                     String gender = document.getString("gender");
+                    int goal = (goalLong != null) ? goalLong.intValue() : 0;
+                    int weight = (goalLong != null) ? weightLong.intValue() : 0;
 
                     fetchDailyIntake(userId, currentDate, totalIntake -> {
                         dataModel.setGoal(goal);
@@ -86,7 +88,14 @@ public class FirestoreHelper {
                         dataModel.setGender(gender);
                         callback.onDataLoaded(goal, totalIntake);
                     });
+                } else {
+                    // Handle the case where the document does not exist
+                    Log.e("FirestoreHelper", "User document does not exist.");
+                    callback.onDataLoaded(0, 0);
                 }
+            }else {
+                    Log.e("FirestoreHelper", "Task was not successful or result is null.");
+                    callback.onDataLoaded(0, 0);
             }
         });
     }
