@@ -48,11 +48,6 @@ public class DataModel extends AndroidViewModel {
     private MutableLiveData<String> gender = new MutableLiveData<>();
     private MutableLiveData<List<Record>> records = new MutableLiveData<>(new ArrayList<>());
 
-    private String getSharedPrefsName() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        return "waterwise_prefs_" + userId;
-    }
-
     public DataModel(Application application) {
         super(application);
         String sharedPrefsName = getSharedPrefsName();
@@ -61,26 +56,22 @@ public class DataModel extends AndroidViewModel {
         checkAndResetDataIfNeeded();
         loadAllData();
     }
-    // Check if today's date is different from the saved date, and reset if needed
+
+    private String getSharedPrefsName() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return "waterwise_prefs_" + userId;
+    }
+
     private void checkAndResetDataIfNeeded() {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String lastResetDate = sharedPreferences.getString(KEY_LAST_RESET_DATE, null);
 
         if (lastResetDate == null || !lastResetDate.equals(currentDate)) {
             // new day clear intake
-            setValueAndSave(intake, 0, KEY_INTAKE);
-            saveToPreferences(KEY_INTAKE, 0);
-            Log.d("!!!!!! !!!!!!! Intake After RESET", getIntake().getValue() + "");
-
-            // new day clear records
-            List<Record> emptyRecords = new ArrayList<>();
-            setValueAndSave(records, emptyRecords, KEY_RECORDS);
-            saveToPreferences(KEY_RECORDS, gson.toJson(emptyRecords));
-
-            // update the last reset date
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(KEY_LAST_RESET_DATE, currentDate);
-            editor.apply();
+            setIntake(0);
+            setRecords(new ArrayList<>());
+            sharedPreferences.edit().putString(KEY_LAST_RESET_DATE, currentDate).apply();
+            Log.d("Intake After RESET", getIntake().getValue() + "");
         } else{
             Log.d("DataModel", "No reset needed.");
         }
@@ -88,32 +79,52 @@ public class DataModel extends AndroidViewModel {
 
     // Getters and setters
     public MutableLiveData<Integer> getGoal() { return goal; }
-    public void setGoal(int goalValue) { setValueAndSave(goal, goalValue, KEY_GOAL); }
-
     public MutableLiveData<Integer> getIntake() { return intake; }
-    public void setIntake(int intakeValue) { setValueAndSave(intake, intakeValue, KEY_INTAKE); }
-
     public MutableLiveData<String> getName() { return name; }
-    public void setName(String nameValue) { setValueAndSave(name, nameValue, KEY_NAME); }
-
     public MutableLiveData<Integer> getWeight() { return weight; }
-    public void setWeight(int weightValue) { setValueAndSave(weight, weightValue, KEY_WEIGHT); }
-
     public MutableLiveData<String> getGender() { return gender; }
-    public void setGender(String genderValue) { setValueAndSave(gender, genderValue, KEY_GENDER); }
-
     public MutableLiveData<List<Record>> getRecords() { return records; }
+
+    public void setName(String nameValue) {
+        name.setValue(nameValue);
+        saveToPreferences(KEY_NAME, nameValue);
+    }
+
+    public void setWeight(int weightValue) {
+        weight.setValue(weightValue);
+        saveToPreferences(KEY_WEIGHT, weightValue);
+    }
+
+    public void setGender(String genderValue) {
+        gender.setValue(genderValue);
+        saveToPreferences(KEY_GENDER, genderValue);
+    }
+
+    public void setRecords(List<Record> newRecords) {
+        records.setValue(newRecords);
+        saveToPreferences(KEY_RECORDS, gson.toJson(newRecords));
+    }
+
+    public void setGoal(int goalValue) {
+        goal.setValue(goalValue);
+        saveToPreferences(KEY_GOAL, goalValue);
+    }
+
+    public void setIntake(int intakeValue) {
+        intake.setValue(intakeValue);
+        saveToPreferences(KEY_INTAKE, intakeValue);
+        Log.d("!!!!!! !!!!!!! Intake After RESET", getIntake().getValue() + ""); // Keep this log if needed
+    }
+
     public void addRecord(Record record) {
         List<Record> currentRecords = records.getValue();
         if (currentRecords != null) {
             currentRecords.add(record);
-            records.setValue(currentRecords);
-            saveToPreferences(KEY_RECORDS, gson.toJson(currentRecords));
+            setRecords(currentRecords);
         }
         Log.d("DataModel!!!!! ", "Record Date: " + record.getDate());
 
     }
-
     // Load all data at once
     private void loadAllData() {
         loadFromPreferences(goal, KEY_GOAL, DEFAULT_GOAL);
@@ -122,12 +133,6 @@ public class DataModel extends AndroidViewModel {
         loadFromPreferences(name, KEY_NAME, DEFAULT_NAME);
         loadFromPreferences(weight, KEY_WEIGHT, DEFAULT_WEIGHT);
         loadFromPreferences(gender, KEY_GENDER, DEFAULT_GENDER);
-    }
-
-    // Generic save method
-    private <T> void setValueAndSave(MutableLiveData<T> liveData, T value, String key) {
-        liveData.setValue(value);
-        saveToPreferences(key, value);
     }
 
     // Generic load method
