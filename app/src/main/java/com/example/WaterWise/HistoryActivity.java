@@ -37,6 +37,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         displayDayOfWeek();
         observeGoalAndIntake();
+        setUpBottomNavigationBar();
 
         FirestoreHelper firestoreHelper = new FirestoreHelper();
         RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
@@ -65,21 +66,7 @@ public class HistoryActivity extends AppCompatActivity {
             recyclerView2.setAdapter(adapter);
         });
 
-        // Bottom NavBar
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        Menu menu = bottomNavigationView.getMenu();
-        menu.findItem(R.id.nav_home).setVisible(true);
-        menu.findItem(R.id.nav_add_water).setVisible(false);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_settings) {
-                startActivity(new Intent(HistoryActivity.this, SettingsActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_home) {
-                startActivity(new Intent(HistoryActivity.this, MainActivity.class));
-                return true;
-            } else return itemId == R.id.nav_history;
-        });
+
     }
     private void observeGoalAndIntake() {
         dataModel.getGoal().observe(this, goal -> {
@@ -108,5 +95,22 @@ public class HistoryActivity extends AppCompatActivity {
 
         dayOfWeekTextView.setText(currentDay);
         dateTextView.setText(formattedDate);
+    }
+
+    public void setUpBottomNavigationBar(){
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        Menu menu = bottomNavigationView.getMenu();
+        menu.findItem(R.id.nav_home).setVisible(true);
+        menu.findItem(R.id.nav_add_water).setVisible(false);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_settings) {
+                startActivity(new Intent(HistoryActivity.this, SettingsActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_home) {
+                startActivity(new Intent(HistoryActivity.this, MainActivity.class));
+                return true;
+            } else return itemId == R.id.nav_history;
+        });
     }
 }
