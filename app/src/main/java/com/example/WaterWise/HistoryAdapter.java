@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,13 +34,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         int percentage = record.getPercentage();
         holder.percentageTextView.setText(percentage + "%");
         // Adjust the background based on percentage
-        if (percentage >= 100) {
-            holder.circleContainer.setBackgroundResource(R.drawable.circle_filled); // Fully filled
-        } else if (percentage == 0) {
-            holder.circleContainer.setBackgroundResource(R.drawable.circle_empty); // Empty
-        } else {
-            holder.circleContainer.setBackgroundResource(R.drawable.circle_partial); // Partially filled
-        }
+        holder.circleProgressView.setPercentage(percentage);
         Log.d("HistoryAdapter", "Displaying history item at position: " + position + " with date: " + record.getDate());
     }
 
@@ -54,13 +47,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public static class HistoryViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView;
         TextView percentageTextView;
-        RelativeLayout circleContainer;
+        CircleProgressView circleProgressView;
 
         public HistoryViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
-            percentageTextView = itemView.findViewById(R.id.percentageTextView);
-            circleContainer = itemView.findViewById(R.id.circleContainer);
+            percentageTextView = itemView.findViewById(R.id.percentageText);
+            circleProgressView = itemView.findViewById(R.id.circleProgressView);
         }
     }
 }
