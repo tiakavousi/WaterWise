@@ -127,6 +127,8 @@ public class FirestoreHelper {
                         e.printStackTrace();
                         callback.onHistoryLoaded(new ArrayList<>());
                     }
+                } else {
+                    callback.onHistoryLoaded(new ArrayList<>());
                 }
             } else {
                 Log.e("FirestoreHelper", "Failed to fetch sign-up date");
@@ -162,7 +164,8 @@ public class FirestoreHelper {
                         int totalIntake = 0;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                int intake = document.getLong("amount").intValue();
+                                Long intakeLong = document.getLong("amount");
+                                int intake = intakeLong != null ? intakeLong.intValue() : 0;
                                 totalIntake += intake;
                             }
                         }
@@ -171,7 +174,8 @@ public class FirestoreHelper {
                         int finalTotalIntake = totalIntake;
                         db.collection("users").document(userId).get().addOnCompleteListener(goalTask -> {
                             if (goalTask.isSuccessful() && goalTask.getResult() != null) {
-                                int goal = goalTask.getResult().getLong("goal").intValue();
+                                Long goalLong = goalTask.getResult().getLong("goal");
+                                int goal = goalLong != null ? goalLong.intValue() : 2000;
                                 int percentage = goal > 0 ? (finalTotalIntake * 100 / goal) : 0;
 
                                 // Create a history record for this date
@@ -182,6 +186,10 @@ public class FirestoreHelper {
                                 if (historyList.size() == allDates.size()) {
                                     callback.onHistoryLoaded(historyList);
                                 }
+                            } else {
+                            // task fails
+                            Log.e("FirestoreHelper", "Failed to fetch goal");
+                            callback.onHistoryLoaded(new ArrayList<>());
                             }
                         });
                     });

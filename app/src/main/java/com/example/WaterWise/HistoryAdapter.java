@@ -9,7 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
@@ -35,6 +39,18 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         holder.percentageTextView.setText(percentage + "%");
         // Adjust the background based on percentage
         holder.circleProgressView.setPercentage(percentage);
+
+        String rawDate = record.getDate();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault()); // Format as "Mon, Aug 30, 2024"
+        String formattedDate = "";
+        try {
+            Date date = inputFormat.parse(rawDate);
+            formattedDate = outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        holder.dateTextView.setText(formattedDate);
         Log.d("HistoryAdapter", "Displaying history item at position: " + position + " with date: " + record.getDate());
     }
 

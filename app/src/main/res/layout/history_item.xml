@@ -21,7 +21,7 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:text="71%"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="@id/circleProgressView"
@@ -33,11 +33,13 @@
         android:id="@+id/dateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fri, Sep 1, '17"
+        android:text="Mon, Aug 30, 2024"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:gravity="center"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toEndOf="@id/circleProgressView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
