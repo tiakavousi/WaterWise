@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private PieChart pieChart;
     private BottomNavigationView bottomNavigationView;
     private DataModel dataModel;
-    private FirestoreHelper firestoreHelper = new FirestoreHelper();
+    private FirestoreHelper firestoreHelper;
     private ChartManager<PieChart> chartManager;
     private  TextView recordsMessage;
 
@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataModel = new ViewModelProvider(this).get(DataModel.class);
+        firestoreHelper = new FirestoreHelper(dataModel);
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);

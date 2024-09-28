@@ -25,7 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView nameValue, genderValue, weightValue, dailyGoalValue;
     private Button signOutButton, signUpButton;
     private DataModel dataModel;
-    private FirestoreHelper firestoreHelper = new FirestoreHelper();
+    private FirestoreHelper firestoreHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         dailyGoalValue = findViewById(R.id.dailyGoalValue);
         signOutButton = findViewById(R.id.signOutButton);
         signUpButton = findViewById(R.id.signUpButton);
-
+        firestoreHelper = new FirestoreHelper(dataModel);
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
