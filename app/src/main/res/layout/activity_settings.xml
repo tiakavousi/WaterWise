@@ -45,7 +45,9 @@
                         android:layout_weight="1"
                         android:text="Name"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="start"/>
 
                     <!-- Editable Text Field -->
                     <TextView
@@ -60,7 +62,9 @@
                         android:hint="Enter name"
                         android:text="Tia"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="end" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -83,7 +87,9 @@
                         android:text="Gender"
                         android:focusable="true"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="start"/>
 
                     <!-- Editable Text Field -->
                     <TextView
@@ -98,7 +104,9 @@
                         android:hint="Enter gender"
                         android:text="Female"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="end" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -121,7 +129,9 @@
                         android:layout_weight="1"
                         android:text="Weight"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="start"/>
 
                     <!-- Editable Text Field -->
                     <TextView
@@ -136,7 +146,9 @@
                         android:hint="Enter weight"
                         android:text="48kg"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="end" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -159,7 +171,9 @@
                         android:layout_weight="1"
                         android:text="Daily Goal"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="start"/>
 
                     <!-- Editable Text Field -->
                     <TextView
@@ -174,7 +188,9 @@
                         android:hint="Enter goal"
                         android:text="3L"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="end" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
