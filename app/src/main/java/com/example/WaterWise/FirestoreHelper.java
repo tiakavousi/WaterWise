@@ -20,10 +20,13 @@ public class FirestoreHelper {
 
     private final FirebaseFirestore db;
     private final String userId;
+    private DataModel dataModel;
 
-    public FirestoreHelper() {
+    public FirestoreHelper(DataModel dataModel) {
+        this.dataModel = dataModel;
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
     }
 
     public void saveUserData(String name, int goal, int weight, String gender) {
@@ -104,8 +107,6 @@ public class FirestoreHelper {
 
 
     public void fetchHistory(HistoryCallback callback) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         db.collection("users").document(userId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 String signUpDateStr = task.getResult().getString("signUpDate");
@@ -171,27 +172,16 @@ public class FirestoreHelper {
                         }
 
                         // Fetch the user's daily goal
-                        int finalTotalIntake = totalIntake;
-                        db.collection("users").document(userId).get().addOnCompleteListener(goalTask -> {
-                            if (goalTask.isSuccessful() && goalTask.getResult() != null) {
-                                Long goalLong = goalTask.getResult().getLong("goal");
-                                int goal = goalLong != null ? goalLong.intValue() : 2000;
-                                int percentage = goal > 0 ? (finalTotalIntake * 100 / goal) : 0;
+                        Integer goal = dataModel.getGoal().getValue();// Get goal from DataModel
+                        int finalGoal = goal != null ? goal : 2000;
+                        int percentage = finalGoal > 0 ? (totalIntake * 100 / finalGoal) : 0;
+                        HistoryRecord record = new HistoryRecord(date, percentage);
+                        historyList.add(record);
 
-                                // Create a history record for this date
-                                HistoryRecord record = new HistoryRecord(date, percentage);
-                                historyList.add(record);
-
-                                // If all dates have been processed, return the full history
-                                if (historyList.size() == allDates.size()) {
-                                    callback.onHistoryLoaded(historyList);
-                                }
-                            } else {
-                            // task fails
-                            Log.e("FirestoreHelper", "Failed to fetch goal");
-                            callback.onHistoryLoaded(new ArrayList<>());
-                            }
-                        });
+                        // If all dates have been processed, return the full history
+                        if (historyList.size() == allDates.size()) {
+                            callback.onHistoryLoaded(historyList);
+                        }
                     });
         }
     }

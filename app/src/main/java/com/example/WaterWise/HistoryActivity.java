@@ -39,7 +39,7 @@ public class HistoryActivity extends AppCompatActivity {
         observeGoalAndIntake();
         setUpBottomNavigationBar();
 
-        FirestoreHelper firestoreHelper = new FirestoreHelper();
+        FirestoreHelper firestoreHelper = new FirestoreHelper(dataModel);
         RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(this));
 
