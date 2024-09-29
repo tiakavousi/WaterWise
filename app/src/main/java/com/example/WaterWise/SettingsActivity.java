@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         dailyGoalValue = findViewById(R.id.dailyGoalValue);
         signOutButton = findViewById(R.id.signOutButton);
         signUpButton = findViewById(R.id.signUpButton);
-        firestoreHelper = new FirestoreHelper(dataModel);
+        firestoreHelper = new FirestoreHelper();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());

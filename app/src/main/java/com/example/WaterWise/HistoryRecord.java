@@ -2,19 +2,22 @@ package com.example.WaterWise;
 
 public class HistoryRecord {
     private String date;
-    private int percentage;
+    private int intake;
 
-    public HistoryRecord(String date, int percentage) {
+    public HistoryRecord(String date, int intake) {
         this.date = date;
-        this.percentage = percentage;
+        this.intake = intake;
     }
 
     public String getDate() {
         return date;
     }
 
-    public int getPercentage() {
-        return percentage;
+    public int getIntake() {
+        return intake;
+    }
+    public int calculatePercentage(int goal) {
+        return goal > 0 ? (intake * 100 / goal) : 0;
     }
 }
 

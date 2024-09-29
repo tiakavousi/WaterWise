@@ -2,7 +2,6 @@ package com.example.WaterWise;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
@@ -15,12 +14,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
     private DataModel dataModel;
+    private int userGoal;
     private TextView dayOfWeekTextView, dateTextView, goalTextView, remainingTextView;
 
     @Override
@@ -28,7 +27,7 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         dataModel = new ViewModelProvider(this).get(DataModel.class);
-
+        dataModel.getGoal().observe(this, goal -> {userGoal = goal;});
 
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
@@ -39,18 +38,11 @@ public class HistoryActivity extends AppCompatActivity {
         observeGoalAndIntake();
         setUpBottomNavigationBar();
 
-        FirestoreHelper firestoreHelper = new FirestoreHelper(dataModel);
         RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(this));
 
-        firestoreHelper.fetchHistory(historyList -> {
-            Log.d("MainActivity!!!!", "Setting adapter with history size: " + historyList.size());
-            for (HistoryRecord record : historyList) {
-                Log.d("Before Sorting", "Date: " + record.getDate());
-            }
-            Collections.sort(historyList, new Comparator<HistoryRecord>() {
-                @Override
-                public int compare(HistoryRecord record1, HistoryRecord record2) {
+       dataModel.getHistoryRecords().observe(this, historyList -> {
+            Collections.sort(historyList, (record1, record2)-> {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     try {
                         Date date1 = dateFormat.parse(record1.getDate());
@@ -60,13 +52,13 @@ public class HistoryActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     return 0;
-                }
-            });
-            HistoryAdapter adapter = new HistoryAdapter(historyList);
+                });
+           // Fetch the goal from the data model
+           int goalInMiliLiters = dataModel.getGoal().getValue();
+            HistoryAdapter adapter = new HistoryAdapter(historyList, goalInMiliLiters);
             recyclerView2.setAdapter(adapter);
         });
-
-
+        dataModel.fetchHistoryFromFirestore(new FirestoreHelper());
     }
     private void observeGoalAndIntake() {
         dataModel.getGoal().observe(this, goal -> {

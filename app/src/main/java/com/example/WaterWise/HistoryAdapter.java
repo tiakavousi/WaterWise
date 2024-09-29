@@ -18,9 +18,11 @@ import java.util.Locale;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
     private List<HistoryRecord> historyList;
+    private int goal;
 
-    public HistoryAdapter(List<HistoryRecord> historyList) {
+    public HistoryAdapter(List<HistoryRecord> historyList, int goal) {
         this.historyList = historyList;
+        this.goal = goal;
     }
 
     @NonNull
@@ -35,7 +37,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         HistoryRecord record = historyList.get(position);
         holder.dateTextView.setText(record.getDate());
-        int percentage = record.getPercentage();
+        int percentage = record.calculatePercentage(goal);
+
         holder.percentageTextView.setText(percentage + "%");
         // Adjust the background based on percentage
         holder.circleProgressView.setPercentage(percentage);

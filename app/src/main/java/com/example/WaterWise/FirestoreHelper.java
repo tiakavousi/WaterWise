@@ -6,10 +6,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +18,8 @@ public class FirestoreHelper {
 
     private final FirebaseFirestore db;
     private final String userId;
-    private DataModel dataModel;
 
-    public FirestoreHelper(DataModel dataModel) {
-        this.dataModel = dataModel;
+    public FirestoreHelper() {
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -105,57 +101,8 @@ public class FirestoreHelper {
         });
     }
 
-
-    public void fetchHistory(HistoryCallback callback) {
-        db.collection("users").document(userId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                String signUpDateStr = task.getResult().getString("signUpDate");
-
-                if (signUpDateStr != null) {
-                    try {
-                        // Parse the sign-up date and current date
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                        Date signUpDate = dateFormat.parse(signUpDateStr);
-                        Date currentDate = new Date();
-
-                        // Generate a list of dates from sign-up date to current date
-                        List<String> allDates = getDatesBetween(signUpDate, currentDate);
-
-                        // Fetch water intake history for all dates
-                        fetchHistoryForAllDays(userId, allDates, callback);
-
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        callback.onHistoryLoaded(new ArrayList<>());
-                    }
-                } else {
-                    callback.onHistoryLoaded(new ArrayList<>());
-                }
-            } else {
-                Log.e("FirestoreHelper", "Failed to fetch sign-up date");
-                callback.onHistoryLoaded(new ArrayList<>());
-            }
-        });
-    }
-
-    // Helper method to generate list of dates between two dates
-    private List<String> getDatesBetween(Date startDate, Date endDate) {
-        List<String> dates = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
-        while (!calendar.getTime().after(endDate)) {
-            dates.add(dateFormat.format(calendar.getTime()));
-            calendar.add(Calendar.DATE, 1); // Move to the next day
-        }
-
-        return dates;
-    }
-
-    private void fetchHistoryForAllDays(String userId, List<String> allDates, HistoryCallback callback) {
-        List<HistoryRecord> historyList = new ArrayList<>();
+    public void fetchIntakeForDates(String userId, List<String> allDates, HistoryIntakeCallback callback) {
+        List<HistoryRecord> historyIntakeList = new ArrayList<>();
 
         for (String date : allDates) {
             db.collection("users").document(userId).collection("records")
@@ -170,24 +117,30 @@ public class FirestoreHelper {
                                 totalIntake += intake;
                             }
                         }
-
-                        // Fetch the user's daily goal
-                        Integer goal = dataModel.getGoal().getValue();// Get goal from DataModel
-                        int finalGoal = goal != null ? goal : 2000;
-                        int percentage = finalGoal > 0 ? (totalIntake * 100 / finalGoal) : 0;
-                        HistoryRecord record = new HistoryRecord(date, percentage);
-                        historyList.add(record);
-
-                        // If all dates have been processed, return the full history
-                        if (historyList.size() == allDates.size()) {
-                            callback.onHistoryLoaded(historyList);
+                        historyIntakeList.add(new HistoryRecord(date, totalIntake));
+                        if (historyIntakeList.size() == allDates.size()) {
+                            callback.onIntakeLoaded(historyIntakeList);
                         }
                     });
         }
     }
+    public void fetchSignUpDate(FirestoreHelper.SignUpDateCallback callback) {
+        db.collection("users").document(userId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String signUpDateStr = task.getResult().getString("signUpDate");
+                callback.onSignUpDateFetched(signUpDateStr); // Pass the signUpDateStr to the callback
+            } else {
+                callback.onSignUpDateFetched(null); // Pass null in case of error
+            }
+        });
+    }
 
-    public interface HistoryCallback {
-        void onHistoryLoaded(List<HistoryRecord> historyList);
+    public interface SignUpDateCallback {
+        void onSignUpDateFetched(String signUpDateStr); // Use String type
+    }
+
+    public interface HistoryIntakeCallback {
+        void onIntakeLoaded(List<HistoryRecord> historyIntakeList);
     }
 
     public interface FirestoreHelperCallback {

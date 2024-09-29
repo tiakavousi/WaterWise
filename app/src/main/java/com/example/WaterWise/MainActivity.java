@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataModel = new ViewModelProvider(this).get(DataModel.class);
-        firestoreHelper = new FirestoreHelper(dataModel);
+        firestoreHelper = new FirestoreHelper();
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);

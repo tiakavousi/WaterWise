@@ -14,8 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +49,8 @@ public class DataModel extends AndroidViewModel {
     private MutableLiveData<Integer> weight = new MutableLiveData<>();
     private MutableLiveData<String> gender = new MutableLiveData<>();
     private MutableLiveData<List<Record>> records = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<List<HistoryRecord>> historyRecords = new MutableLiveData<>(new ArrayList<>());
+
 
     public DataModel(Application application) {
         super(application);
@@ -84,6 +88,7 @@ public class DataModel extends AndroidViewModel {
     public MutableLiveData<Integer> getWeight() { return weight; }
     public MutableLiveData<String> getGender() { return gender; }
     public MutableLiveData<List<Record>> getRecords() { return records; }
+    public MutableLiveData<List<HistoryRecord>> getHistoryRecords() {return historyRecords;}
 
     public void setName(String nameValue) {
         name.setValue(nameValue);
@@ -125,6 +130,11 @@ public class DataModel extends AndroidViewModel {
         Log.d("DataModel!!!!! ", "Record Date: " + record.getDate());
 
     }
+
+    public void setHistoryRecords(List<HistoryRecord> historyRecords) {
+        this.historyRecords.setValue(historyRecords);
+    }
+
     // Load all data at once
     private void loadAllData() {
         loadFromPreferences(goal, KEY_GOAL, DEFAULT_GOAL);
@@ -166,5 +176,59 @@ public class DataModel extends AndroidViewModel {
             editor.putString(key, (String) value);
         }
         editor.apply();
+    }
+
+    public void fetchHistoryFromFirestore(FirestoreHelper firestoreHelper) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        firestoreHelper.fetchSignUpDate( signUpDateStr -> {
+            if (signUpDateStr != null) {
+                try {
+                    // Parse the sign-up date and current date
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date signUpDate = dateFormat.parse(signUpDateStr);
+                    Date currentDate = new Date();
+
+                    // Generate a list of dates from sign-up date to current date
+                    List<String> allDates = getDatesBetween(signUpDate, currentDate);
+
+                    // Fetch intake for all dates
+                    firestoreHelper.fetchIntakeForDates(userId, allDates, historyIntakeList -> {
+                        List<HistoryRecord> historyRecords = new ArrayList<>();
+
+                        for (HistoryRecord intakeData : historyIntakeList) {
+                            // Create a history record
+                            HistoryRecord record = new HistoryRecord(intakeData.getDate(), intakeData.getIntake());
+                            historyRecords.add(record);
+                        }
+
+                        // Update the history records LiveData
+                        getHistoryRecords().setValue(historyRecords);
+
+                    });
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    getHistoryRecords().setValue(new ArrayList<>());
+
+                }
+            } else {
+                getHistoryRecords().setValue(new ArrayList<>());
+            }
+        });
+    }
+
+    private List<String> getDatesBetween(Date startDate, Date endDate) {
+        List<String> dates = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        while (!calendar.getTime().after(endDate)) {
+            dates.add(dateFormat.format(calendar.getTime()));
+            calendar.add(Calendar.DATE, 1); // Move to the next day
+        }
+
+        return dates;
     }
 }
