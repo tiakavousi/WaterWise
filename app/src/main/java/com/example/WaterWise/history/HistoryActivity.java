@@ -63,7 +63,8 @@ public class HistoryActivity extends AppCompatActivity {
             HistoryRecordAdapter adapter = new HistoryRecordAdapter(historyList, goalInMiliLiters);
             recyclerView2.setAdapter(adapter);
         });
-        dataModel.fetchHistoryFromFirestore(new FirestoreHelper());
+        HistoryManager historyManager = new HistoryManager(new FirestoreHelper());
+        historyManager.fetchHistoryRecords(dataModel);
     }
     private void observeGoalAndIntake() {
         dataModel.getGoal().observe(this, goal -> {
