@@ -1,11 +1,11 @@
-package com.example.WaterWise;
+package com.example.WaterWise.home;
 
-public class Record {
+public class IntakeRecord {
     private String time;
     private String date;
     private int amount;
 
-    public Record(String time, String date, int amount) {
+    public IntakeRecord(String time, String date, int amount) {
         this.time = time;
         this.date = date;
         this.amount = amount;

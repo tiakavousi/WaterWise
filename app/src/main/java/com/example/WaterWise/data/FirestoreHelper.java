@@ -1,7 +1,8 @@
-package com.example.WaterWise;
+package com.example.WaterWise.data;
 
 import android.util.Log;
 
+import com.example.WaterWise.history.HistoryRecord;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

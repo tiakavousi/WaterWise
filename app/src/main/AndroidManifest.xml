@@ -12,16 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
-        <activity android:name=".EntryActivity" android:exported="true">
+        <activity android:name=".auth.EntryActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".SignupActivity"/>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".HistoryActivity" />
+        <activity android:name=".auth.LoginActivity"/>
+        <activity android:name=".auth.SignupActivity"/>
+        <activity android:name=".home.MainActivity" />
+        <activity android:name=".settings.SettingsActivity" />
+        <activity android:name=".history.HistoryActivity" />
     </application>
 </manifest>

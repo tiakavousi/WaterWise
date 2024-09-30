@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.WaterWise.data.DataModel;
+import com.example.WaterWise.data.FirestoreHelper;
+import com.example.WaterWise.R;
+import com.example.WaterWise.auth.EntryActivity;
+import com.example.WaterWise.history.HistoryActivity;
+import com.example.WaterWise.home.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 

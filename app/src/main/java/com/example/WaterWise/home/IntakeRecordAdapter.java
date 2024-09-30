@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.home;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +8,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.WaterWise.R;
+
 import java.util.List;
 
-public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordViewHolder> {
+public class IntakeRecordAdapter extends RecyclerView.Adapter<IntakeRecordAdapter.RecordViewHolder> {
 
-    private List<Record> recordList;
+    private List<IntakeRecord> recordList;
 
-    public RecordAdapter(List<Record> recordList) {
+    public IntakeRecordAdapter(List<IntakeRecord> recordList) {
         this.recordList = recordList;
     }
 
@@ -27,7 +29,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
 
     @Override
     public void onBindViewHolder(@NonNull RecordViewHolder holder, int position) {
-        Record record = recordList.get(position);
+        IntakeRecord record = recordList.get(position);
         holder.timeTextView.setText(record.getTime());
         holder.amountTextView.setText(record.getAmount() + " ml");
     }
@@ -37,7 +39,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
         return recordList.size();
     }
 
-    public void setRecords(List<Record> records) {
+    public void setRecords(List<IntakeRecord> records) {
         this.recordList = records;
         notifyDataSetChanged(); // Notify the adapter that the data has changed
     }

@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.auth;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.WaterWise.R;
+import com.example.WaterWise.home.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

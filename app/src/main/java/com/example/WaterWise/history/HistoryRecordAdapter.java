@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.history;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,18 +9,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.WaterWise.R;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
+public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdapter.HistoryViewHolder> {
 
     private List<HistoryRecord> historyList;
     private int goal;
 
-    public HistoryAdapter(List<HistoryRecord> historyList, int goal) {
+    public HistoryRecordAdapter(List<HistoryRecord> historyList, int goal) {
         this.historyList = historyList;
         this.goal = goal;
     }

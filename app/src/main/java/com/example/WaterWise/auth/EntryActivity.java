@@ -1,8 +1,10 @@
-package com.example.WaterWise;
+package com.example.WaterWise.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.WaterWise.home.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 

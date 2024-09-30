@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.home;
 
 
 import android.app.Dialog;
@@ -10,6 +10,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.WaterWise.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class AddWaterBottomSheetDialog extends BottomSheetDialogFragment {

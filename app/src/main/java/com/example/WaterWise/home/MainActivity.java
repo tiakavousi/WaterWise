@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.home;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.WaterWise.charts.ChartManager;
+import com.example.WaterWise.data.DataModel;
+import com.example.WaterWise.data.FirestoreHelper;
+import com.example.WaterWise.R;
+import com.example.WaterWise.settings.SettingsActivity;
+import com.example.WaterWise.history.HistoryActivity;
 import com.github.mikephil.charting.charts.PieChart;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,8 +29,8 @@ import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
-    private List<Record> records = new ArrayList<>();
-    private RecordAdapter adapter;
+    private List<IntakeRecord> records = new ArrayList<>();
+    private IntakeRecordAdapter adapter;
     private PieChart pieChart;
     private BottomNavigationView bottomNavigationView;
     private DataModel dataModel;
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        Record newRecord = new Record(currentTime,currentDate, amount);
+        IntakeRecord newRecord = new IntakeRecord(currentTime,currentDate, amount);
         records.add(newRecord);
         dataModel.addRecord(newRecord);
         firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount);
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecordAdapter(records);
+        adapter = new IntakeRecordAdapter(records);
         recyclerView.setAdapter(adapter);
     }
 

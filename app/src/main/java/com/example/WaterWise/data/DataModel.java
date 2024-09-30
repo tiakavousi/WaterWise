@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.data;
 
 
 import android.app.Application;
@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.WaterWise.history.HistoryRecord;
+import com.example.WaterWise.home.IntakeRecord;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -48,7 +50,7 @@ public class DataModel extends AndroidViewModel {
     private MutableLiveData<String> name = new MutableLiveData<>();
     private MutableLiveData<Integer> weight = new MutableLiveData<>();
     private MutableLiveData<String> gender = new MutableLiveData<>();
-    private MutableLiveData<List<Record>> records = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<List<IntakeRecord>> records = new MutableLiveData<>(new ArrayList<>());
     private MutableLiveData<List<HistoryRecord>> historyRecords = new MutableLiveData<>(new ArrayList<>());
 
 
@@ -87,8 +89,8 @@ public class DataModel extends AndroidViewModel {
     public MutableLiveData<String> getName() { return name; }
     public MutableLiveData<Integer> getWeight() { return weight; }
     public MutableLiveData<String> getGender() { return gender; }
-    public MutableLiveData<List<Record>> getRecords() { return records; }
-    public MutableLiveData<List<HistoryRecord>> getHistoryRecords() {return historyRecords;}
+    public MutableLiveData<List<IntakeRecord>> getRecords() { return records; }
+    public MutableLiveData<List<HistoryRecord>> getHistoryRecords() { return historyRecords;}
 
     public void setName(String nameValue) {
         name.setValue(nameValue);
@@ -105,7 +107,7 @@ public class DataModel extends AndroidViewModel {
         saveToPreferences(KEY_GENDER, genderValue);
     }
 
-    public void setRecords(List<Record> newRecords) {
+    public void setRecords(List<IntakeRecord> newRecords) {
         records.setValue(newRecords);
         saveToPreferences(KEY_RECORDS, gson.toJson(newRecords));
     }
@@ -118,21 +120,14 @@ public class DataModel extends AndroidViewModel {
     public void setIntake(int intakeValue) {
         intake.setValue(intakeValue);
         saveToPreferences(KEY_INTAKE, intakeValue);
-        Log.d("!!!!!! !!!!!!! Intake After RESET", getIntake().getValue() + ""); // Keep this log if needed
     }
 
-    public void addRecord(Record record) {
-        List<Record> currentRecords = records.getValue();
+    public void addRecord(IntakeRecord record) {
+        List<IntakeRecord> currentRecords = records.getValue();
         if (currentRecords != null) {
             currentRecords.add(record);
             setRecords(currentRecords);
         }
-        Log.d("DataModel!!!!! ", "Record Date: " + record.getDate());
-
-    }
-
-    public void setHistoryRecords(List<HistoryRecord> historyRecords) {
-        this.historyRecords.setValue(historyRecords);
     }
 
     // Load all data at once
@@ -162,8 +157,8 @@ public class DataModel extends AndroidViewModel {
     // records load method
     private void loadRecords() {
         String json = sharedPreferences.getString(KEY_RECORDS, null);
-        Type type = new TypeToken<List<Record>>() {}.getType();
-        List<Record> savedRecords = json != null ? gson.fromJson(json, type) : new ArrayList<>();
+        Type type = new TypeToken<List<IntakeRecord>>() {}.getType();
+        List<IntakeRecord> savedRecords = json != null ? gson.fromJson(json, type) : new ArrayList<>();
         records.setValue(savedRecords);
     }
 
@@ -207,11 +202,12 @@ public class DataModel extends AndroidViewModel {
 
                     });
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Log.d("SignUp date", "ParseException");
                     getHistoryRecords().setValue(new ArrayList<>());
 
                 }
             } else {
+                Log.d("SignUp date", "null");
                 getHistoryRecords().setValue(new ArrayList<>());
             }
         });

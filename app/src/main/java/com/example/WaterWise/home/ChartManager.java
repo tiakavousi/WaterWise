@@ -1,4 +1,4 @@
-package com.example.WaterWise.charts;
+package com.example.WaterWise.home;
 
 import android.graphics.Color;
 
@@ -11,7 +11,7 @@ import com.github.mikephil.charting.data.PieEntry;
 import java.util.ArrayList;
 
 public class ChartManager<T extends Chart<?>> {
-    private T chart;
+    private final T chart;
 
     public ChartManager(T chart) {
         this.chart = chart;

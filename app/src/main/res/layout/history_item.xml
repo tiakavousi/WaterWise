@@ -5,7 +5,7 @@
     android:padding="8dp">
 
     <!-- Circle Progress (Custom View for Percentage) -->
-    <com.example.WaterWise.CircleProgressView
+    <com.example.WaterWise.history.CircleProgressView
         android:id="@+id/circleProgressView"
         android:layout_width="48dp"
         android:layout_height="48dp"

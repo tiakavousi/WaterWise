@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.history;
 
 public class HistoryRecord {
     private String date;

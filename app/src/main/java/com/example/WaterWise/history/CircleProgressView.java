@@ -1,4 +1,4 @@
-package com.example.WaterWise;
+package com.example.WaterWise.history;
 
 import android.content.Context;
 import android.graphics.Canvas;
