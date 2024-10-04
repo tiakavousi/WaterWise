@@ -36,11 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private ChartManager<PieChart> chartManager; // Manager for configuring and handling PieChart
     private  TextView recordsMessage; // TextView to display messages when no records are available
 
-    // Updates the PieChart with the user's goal and intake
-    private void updatePieChart(int goal, int intake) {
-        chartManager.configurePieChart(pieChart, goal, intake);
-    }
-
     // Shows the dialog to add water intake
     private void showAddWaterDialog() {
         AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
@@ -55,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         dataModel.setIntake(intake);
 
         // Update the PieChart with the new intake and goal
-        updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
+        chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), intake);
 
         // Create a new record for the intake and save it in Firestore
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
@@ -144,15 +139,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Fetch the user data and observe changes in the goal and intake LiveData
-//        fetchUserData();
         dataModel.getGoal().observe(this, goal -> {
             if (goal != null && dataModel.getIntake().getValue() != null) {
-                updatePieChart(goal, dataModel.getIntake().getValue());
+                chartManager.configurePieChart(pieChart, goal, dataModel.getIntake().getValue());
             }
         });
         dataModel.getIntake().observe(this, intake -> {
             if (dataModel.getGoal().getValue() != null) {
-                updatePieChart(dataModel.getGoal().getValue(), intake);
+                chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
             }
         });
     }
@@ -162,10 +156,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // Fetch user data again in case anything changed while the app was paused
-//        fetchUserData();
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             // Update the PieChart when the activity resumes
-            updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
+            chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
         }
     }
 }
