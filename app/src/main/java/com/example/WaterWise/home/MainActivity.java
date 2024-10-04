@@ -18,7 +18,6 @@ import com.example.WaterWise.history.HistoryActivity;
 import com.example.WaterWise.settings.SettingsActivity;
 import com.github.mikephil.charting.charts.PieChart;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,12 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreHelper firestoreHelper; // Helper class to handle interactions with Firestore
     private ChartManager<PieChart> chartManager; // Manager for configuring and handling PieChart
     private  TextView recordsMessage; // TextView to display messages when no records are available
-
-    // Fetches user data from Firestore and updates the PieChart
-    private void fetchUserData() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> updatePieChart(goal, intake));
-    }
 
     // Updates the PieChart with the user's goal and intake
     private void updatePieChart(int goal, int intake) {
@@ -63,14 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Update the PieChart with the new intake and goal
         updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
-
-        // Save updated intake to Firestore
-        firestoreHelper.saveUserData(
-                dataModel.getName().getValue(),
-                dataModel.getGoal().getValue(),
-                dataModel.getWeight().getValue(),
-                dataModel.getGender().getValue()
-        );
 
         // Create a new record for the intake and save it in Firestore
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
@@ -159,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Fetch the user data and observe changes in the goal and intake LiveData
-        fetchUserData();
+//        fetchUserData();
         dataModel.getGoal().observe(this, goal -> {
             if (goal != null && dataModel.getIntake().getValue() != null) {
                 updatePieChart(goal, dataModel.getIntake().getValue());
@@ -177,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // Fetch user data again in case anything changed while the app was paused
-        fetchUserData();
+//        fetchUserData();
         if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
             // Update the PieChart when the activity resumes
             updatePieChart(dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
