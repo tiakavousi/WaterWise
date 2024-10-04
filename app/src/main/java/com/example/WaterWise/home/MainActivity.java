@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.WaterWise.R;
 import com.example.WaterWise.data.DataModel;
-import com.example.WaterWise.data.FirestoreHelper;
 import com.example.WaterWise.history.HistoryActivity;
 import com.example.WaterWise.settings.SettingsActivity;
 import com.github.mikephil.charting.charts.PieChart;
@@ -27,12 +26,11 @@ import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
+    private DataModel dataModel; // ViewModel to manage and observe data
     private List<IntakeRecord> records = new ArrayList<>(); // List of intake records for the day
     private IntakeRecordAdapter adapter; // Adapter for RecyclerView to display intake records
     private PieChart pieChart; // Pie chart for visualizing daily water intake vs goal
     private BottomNavigationView bottomNavigationView; // Bottom navigation bar for navigating between different sections of the app
-    private DataModel dataModel; // ViewModel to manage and observe data
-    private FirestoreHelper firestoreHelper; // Helper class to handle interactions with Firestore
     private ChartManager<PieChart> chartManager; // Manager for configuring and handling PieChart
     private  TextView recordsMessage; // TextView to display messages when no records are available
 
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Adds water intake and updates the UI and Firestore
     private void addWater(int amount) {
-        int intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : 0;
+        int intake = dataModel.getIntake().getValue();
         intake += amount;
         dataModel.setIntake(intake);
 
@@ -61,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
         records.add(newRecord);
         // Add the record to the data model
         dataModel.addRecord(newRecord);
-        // Save the record to Firestore
-        firestoreHelper.saveWaterIntakeRecord(currentTime,currentDate, amount);
     }
 
     // Set up the RecyclerView for displaying daily intake records
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Fetches today's intake records and updates the RecyclerView
-    private void fetchTodaysRecords() {
+    private void observeIntakeRecords() {
         dataModel.getRecords().observe(this, records -> {
 
             if (records.isEmpty()) {
@@ -97,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Initialization
         dataModel = new ViewModelProvider(this).get(DataModel.class);
-        firestoreHelper = new FirestoreHelper();
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
 
         // Fetch today's intake records
-        fetchTodaysRecords();
+        observeIntakeRecords();
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
