@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class DataModel extends AndroidViewModel {
-
+    private FirestoreHelper firestoreHelper;
     private static final String KEY_GOAL = "key_goal";
     private static final String KEY_INTAKE = "key_intake";
     private static final String KEY_RECORDS = "key_records";
@@ -59,6 +59,7 @@ public class DataModel extends AndroidViewModel {
         gson = new Gson();
         checkAndResetDataIfNeeded();
         loadAllData();
+        firestoreHelper = new FirestoreHelper();
     }
 
     private String getSharedPrefsName() {
@@ -126,6 +127,7 @@ public class DataModel extends AndroidViewModel {
             currentRecords.add(record);
             setRecords(currentRecords);
         }
+        firestoreHelper.saveWaterIntakeRecord(record.getTime(),record.getDate(), record.getAmount());
     }
 
     // Load all data at once
