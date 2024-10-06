@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.WaterWise.R;
+import com.example.WaterWise.data.FirestoreHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -32,6 +33,9 @@ import java.util.Map;
 public class SignupActivity extends AppCompatActivity {
     // Declare Firebase authentication instance and UI elements
     private FirebaseAuth auth;
+//    private DataModel dataModel;
+    private FirestoreHelper firestoreHelper;
+
     // UI elements
     private EditText signupEmail, signupPassword;
     private TextView loginRedirectText;
@@ -48,6 +52,9 @@ public class SignupActivity extends AppCompatActivity {
 
         // Initialize FirebaseAuth instance
         auth = FirebaseAuth.getInstance();
+
+//        dataModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+//                .get(DataModel.class);
 
         // Initialize UI elements
         signupEmail = findViewById(R.id.signup_email);
@@ -83,6 +90,8 @@ public class SignupActivity extends AppCompatActivity {
                                 String userId = auth.getCurrentUser().getUid();
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("signUpDate", signUpDate);
+//                                dataModel.setSignUpDate(signUpDate);
+
 
                                 // Add the sign-up date to the Firestore database for the current user
                                 db.collection("users").document(userId).set(userData).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -100,6 +109,8 @@ public class SignupActivity extends AppCompatActivity {
                                         }
                                     }
                                 });
+                                Toast.makeText(SignupActivity.this, "SignUp Successful", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                             } else {
                                 // Show error message if user creation fails
                                 Toast.makeText(SignupActivity.this, "SignUp Failed" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

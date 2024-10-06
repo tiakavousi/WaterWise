@@ -168,6 +168,22 @@ public class FirestoreHelper {
         }
     }
 
+
+    /**
+     * Saves the sign-up date for the current user in Firestore.
+     *
+     * @param signUpDate The sign-up date to be saved in Firestore.
+     */
+    public void saveSignUpDate(String signUpDate) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("signUpDate", signUpDate);
+
+        db.collection("users").document(userId).set(userData)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Sign-up date successfully written!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error writing sign-up date", e));
+    }
+
     /**
      * Fetches the user's sign-up date from Firestore.
      *

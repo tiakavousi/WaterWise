@@ -211,6 +211,8 @@ public class DataModel extends AndroidViewModel {
     public void setSignUpDate(String signUpDateValue) {
         signUpDate.setValue(signUpDateValue);
         saveToPreferences(KEY_SIGN_UP_DATE, signUpDateValue);
+        firestoreHelper.saveSignUpDate(signUpDateValue);
+
     }
 
     /**
