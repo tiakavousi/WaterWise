@@ -26,13 +26,39 @@ import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
-    private DataModel dataModel; // ViewModel to manage and observe data
-    private List<IntakeRecord> records = new ArrayList<>(); // List of intake records for the day
-    private IntakeRecordAdapter adapter; // Adapter for RecyclerView to display intake records
-    private PieChart pieChart; // Pie chart for visualizing daily water intake vs goal
-    private BottomNavigationView bottomNavigationView; // Bottom navigation bar for navigating between different sections of the app
-    private ChartManager<PieChart> chartManager; // Manager for configuring and handling PieChart
-    private  TextView recordsMessage; // TextView to display messages when no records are available
+    private DataModel dataModel;
+    private List<IntakeRecord> records = new ArrayList<>();
+    private IntakeRecordAdapter adapter;
+    private PieChart pieChart;
+    private ChartManager<PieChart> chartManager;
+    private  TextView recordsMessage;
+
+    @Override
+    // Initializes the activity and sets up the views and logic
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Initialization
+        dataModel = new ViewModelProvider(this).get(DataModel.class);
+        chartManager = new ChartManager<>(pieChart);
+        setContentView(R.layout.activity_main);
+        pieChart = findViewById(R.id.pieChart);
+        recordsMessage = findViewById(R.id.recordsMessage);
+
+        setupRecyclerView();
+        observeDataModel();
+        updatePieChart();
+        setupBottomNavigation();
+    }
+
+    @Override
+    // Handles logic when the activity is resumed
+    protected void onResume() {
+        super.onResume();
+        // Fetch user data again in case anything changed while the app was paused and update the PieChart when the activity resumes
+        if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
+            updatePieChart();
+        }
+    }
 
     // Shows the dialog to add water intake
     private void showAddWaterDialog() {
@@ -41,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
     }
 
-    // Adds water intake and updates the UI and Firestore
+    // Adds water intake and updates the UI
     private void addWater(int amount) {
         int intake = dataModel.getIntake().getValue();
         intake += amount;
@@ -50,13 +76,14 @@ public class MainActivity extends AppCompatActivity {
         // Update the PieChart with the new intake and goal
         chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), intake);
 
-        // Create a new record for the intake and save it in Firestore
+        // Create a new record for the intake
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         IntakeRecord newRecord = new IntakeRecord(currentTime,currentDate, amount);
 
         // Add the new record to the list
         records.add(newRecord);
+
         // Add the record to the data model
         dataModel.addRecord(newRecord);
     }
@@ -69,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    // Fetches today's intake records and updates the RecyclerView
-    private void observeIntakeRecords() {
+    private void observeDataModel() {
         dataModel.getRecords().observe(this, records -> {
 
             if (records.isEmpty()) {
@@ -85,34 +111,26 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+        dataModel.getGoal().observe(this, goal -> updatePieChart());
+        dataModel.getIntake().observe(this, intake -> updatePieChart());
     }
-
-    @Override
-    // Initializes the activity and sets up the views and logic
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Initialization
-        dataModel = new ViewModelProvider(this).get(DataModel.class);
-        setContentView(R.layout.activity_main);
-        pieChart = findViewById(R.id.pieChart);
-        recordsMessage = findViewById(R.id.recordsMessage);
-
-        // Initialize the ChartManager for the PieChart
-        chartManager = new ChartManager<>(pieChart);
-
-        // Set up the RecyclerView
-        setupRecyclerView();
-
-        // Fetch today's intake records
-        observeIntakeRecords();
-
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
+    private void updatePieChart() {
+        Integer goal = dataModel.getGoal().getValue();
+        Integer intake = dataModel.getIntake().getValue();
+        if (goal != null && intake != null) {
+            chartManager.configurePieChart(pieChart, goal, intake);
+        }
+    }
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
 
         // Hide the home item as the user is already on the home screen
         menu.findItem(R.id.nav_home).setVisible(false);
+
         // Show the "add water" item in the navigation bar
         menu.findItem(R.id.nav_add_water).setVisible(true);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -132,28 +150,5 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        // Fetch the user data and observe changes in the goal and intake LiveData
-        dataModel.getGoal().observe(this, goal -> {
-            if (goal != null && dataModel.getIntake().getValue() != null) {
-                chartManager.configurePieChart(pieChart, goal, dataModel.getIntake().getValue());
-            }
-        });
-        dataModel.getIntake().observe(this, intake -> {
-            if (dataModel.getGoal().getValue() != null) {
-                chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
-            }
-        });
-    }
-
-    // Handles logic when the activity is resumed
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Fetch user data again in case anything changed while the app was paused
-        if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
-            // Update the PieChart when the activity resumes
-            chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), dataModel.getIntake().getValue());
-        }
     }
 }
