@@ -38,7 +38,7 @@ public class HistoryManager {
                     List<String> allDates = getDatesBetween(signUpDate, currentDate);
 
                     // Fetch intake for all dates
-                    firestoreHelper.fetchIntakeForDates(userId, allDates, historyIntakeList -> {
+                    firestoreHelper.fetchIntakeForDates(allDates, historyIntakeList -> {
                         List<HistoryRecord> historyRecords = new ArrayList<>();
 
                         for (HistoryRecord intakeData : historyIntakeList) {

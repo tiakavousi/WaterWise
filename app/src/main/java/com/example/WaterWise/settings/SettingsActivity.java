@@ -53,7 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
         firestoreHelper = new FirestoreHelper();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
+            firestoreHelper.fetchUserData(dataModel, (goal, intake) -> observeDataModel());
         }
 
         updateProfilePhoto(dataModel.getGoal().getValue() != null ? dataModel.getGoal().getValue() : 2000,
@@ -203,7 +203,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            firestoreHelper.fetchUserData(userId, dataModel, (goal, intake) -> observeDataModel());
+            firestoreHelper.fetchUserData(dataModel, (goal, intake) -> observeDataModel());
         }
         Log.d("name in settings: ", dataModel.getName().getValue()+"");
     }

@@ -23,7 +23,6 @@ public class FirestoreHelper {
     public FirestoreHelper() {
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
     }
 
     public void saveUserData(String name, int goal, int weight, String gender) {
@@ -39,17 +38,18 @@ public class FirestoreHelper {
     }
 
     public void saveWaterIntakeRecord(String time, String date, int amount) {
-        Map<String, Object> recordData = new HashMap<>();
-        recordData.put("time", time);
-        recordData.put("date", date);
-        recordData.put("amount", amount);
+        Map<String, Object> recordData = Map.of(
+                "time", time,
+                "date", date,
+                "amount", amount
+        );
 
         db.collection("users").document(userId).collection("records").add(recordData)
                 .addOnSuccessListener(documentReference -> Log.d("Firestore", "Record successfully added to sub-collection!"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error adding record", e));
     }
 
-    public void fetchDailyIntake(String userId, String date, intakeCallback callback) {
+    public void fetchDailyIntake( String date, intakeCallback callback) {
         db.collection("users").document(userId).collection("records")
                 .whereEqualTo("date", date)
                 .get()
@@ -68,7 +68,7 @@ public class FirestoreHelper {
     }
 
 
-    public void fetchUserData(String userId, DataModel dataModel, FirestoreHelperCallback callback) {
+    public void fetchUserData( DataModel dataModel, FirestoreHelperCallback callback) {
         db.collection("users").document(userId).get().addOnCompleteListener(task -> {
             String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             if (task.isSuccessful() && task.getResult() != null) {
@@ -81,7 +81,7 @@ public class FirestoreHelper {
                     int goal = (goalLong != null) ? goalLong.intValue() : dataModel.DEFAULT_GOAL;
                     int weight = (goalLong != null) ? weightLong.intValue() : dataModel.DEFAULT_WEIGHT;
 
-                    fetchDailyIntake(userId, currentDate, totalIntake -> {
+                    fetchDailyIntake( currentDate, totalIntake -> {
                         dataModel.setGoal(goal);
                         dataModel.setIntake(totalIntake);
                         Log.d("!!!!! INTAKE UPDATE", totalIntake + "");
@@ -93,16 +93,16 @@ public class FirestoreHelper {
                 } else {
                     // Handle the case where the document does not exist
                     Log.e("FirestoreHelper", "User document does not exist.");
-                    callback.onDataLoaded(0, 0);
+                    callback.onDataLoaded(dataModel.DEFAULT_GOAL, dataModel.DEFAULT_INTAKE);
                 }
             }else {
                     Log.e("FirestoreHelper", "Task was not successful or result is null.");
-                    callback.onDataLoaded(0, 0);
+                    callback.onDataLoaded(dataModel.DEFAULT_GOAL, dataModel.DEFAULT_INTAKE);
             }
         });
     }
 
-    public void fetchIntakeForDates(String userId, List<String> allDates, HistoryIntakeCallback callback) {
+    public void fetchIntakeForDates( List<String> allDates, HistoryIntakeCallback callback) {
         List<HistoryRecord> historyIntakeList = new ArrayList<>();
 
         for (String date : allDates) {
