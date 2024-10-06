@@ -31,11 +31,11 @@ public class DataModel extends AndroidViewModel {
     private static final String KEY_WEIGHT = "key_weight";
     private static final String KEY_GENDER = "key_gender";
 
-    private static final int DEFAULT_GOAL = 2000;
-    private static final int DEFAULT_INTAKE = 0;
-    private static final int DEFAULT_WEIGHT = 40;
-    private static final String DEFAULT_NAME = "User";
-    private static final String DEFAULT_GENDER = "Female";
+    public static final int DEFAULT_GOAL = 2000;
+    public static final int DEFAULT_INTAKE = 0;
+    public static final int DEFAULT_WEIGHT = 40;
+    public static final String DEFAULT_NAME = "User";
+    public static final String DEFAULT_GENDER = "Female";
     private static final String KEY_LAST_RESET_DATE = "key_last_reset_date";
 
 

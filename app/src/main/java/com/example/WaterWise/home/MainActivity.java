@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private PieChart pieChart;
     private ChartManager<PieChart> chartManager;
     private  TextView recordsMessage;
+    private int goal;
+    private int intake;
 
     @Override
     // Initializes the activity and sets up the views and logic
@@ -39,26 +41,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Initialization
         dataModel = new ViewModelProvider(this).get(DataModel.class);
+
+        // Set initial values for goal and intake from DataModel
+        goal = dataModel.getGoal().getValue() != null ? dataModel.getGoal().getValue() : DataModel.DEFAULT_GOAL;
+        intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : DataModel.DEFAULT_INTAKE;
         chartManager = new ChartManager<>(pieChart);
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);
 
         setupRecyclerView();
+        // Observe changes to LiveData
         observeDataModel();
+        // Initial chart update
         updatePieChart();
         setupBottomNavigation();
     }
 
-    @Override
-    // Handles logic when the activity is resumed
-    protected void onResume() {
-        super.onResume();
-        // Fetch user data again in case anything changed while the app was paused and update the PieChart when the activity resumes
-        if (dataModel.getGoal().getValue() != null && dataModel.getIntake().getValue() != null) {
-            updatePieChart();
-        }
-    }
 
     // Shows the dialog to add water intake
     private void showAddWaterDialog() {
@@ -69,12 +68,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Adds water intake and updates the UI
     private void addWater(int amount) {
-        int intake = dataModel.getIntake().getValue();
         intake += amount;
         dataModel.setIntake(intake);
 
         // Update the PieChart with the new intake and goal
-        chartManager.configurePieChart(pieChart, dataModel.getGoal().getValue(), intake);
+        updatePieChart();
 
         // Create a new record for the intake
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
@@ -111,16 +109,22 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-        dataModel.getGoal().observe(this, goal -> updatePieChart());
-        dataModel.getIntake().observe(this, intake -> updatePieChart());
+
+        dataModel.getGoal().observe(this, goalFromDataModel -> {
+            goal = goalFromDataModel != null ? goalFromDataModel : DataModel.DEFAULT_GOAL;
+            updatePieChart();
+        });
+
+        dataModel.getIntake().observe(this, intakeFromDataModel -> {
+            intake = intakeFromDataModel != null ? intakeFromDataModel : DataModel.DEFAULT_INTAKE;
+            updatePieChart();
+        });
     }
+
     private void updatePieChart() {
-        Integer goal = dataModel.getGoal().getValue();
-        Integer intake = dataModel.getIntake().getValue();
-        if (goal != null && intake != null) {
-            chartManager.configurePieChart(pieChart, goal, intake);
-        }
+        chartManager.configurePieChart(pieChart, goal, intake);
     }
+
     private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();

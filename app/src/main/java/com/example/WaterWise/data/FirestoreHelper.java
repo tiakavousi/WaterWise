@@ -78,8 +78,8 @@ public class FirestoreHelper {
                     String name = document.getString("name");
                     Long weightLong = document.getLong("weight");
                     String gender = document.getString("gender");
-                    int goal = (goalLong != null) ? goalLong.intValue() : 0;
-                    int weight = (goalLong != null) ? weightLong.intValue() : 0;
+                    int goal = (goalLong != null) ? goalLong.intValue() : dataModel.DEFAULT_GOAL;
+                    int weight = (goalLong != null) ? weightLong.intValue() : dataModel.DEFAULT_WEIGHT;
 
                     fetchDailyIntake(userId, currentDate, totalIntake -> {
                         dataModel.setGoal(goal);
