@@ -23,13 +23,24 @@ import com.example.WaterWise.home.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
-
+/**
+ * SettingsActivity allows the user to view and edit their personal information,
+ * such as their name, gender, weight, and daily water intake goal.
+ * The activity also provides options for user sign-in and sign-out.
+ */
 public class SettingsActivity extends AppCompatActivity {
     private ImageView profilePicture;
     private TextView nameValue, genderValue, weightValue, goalValue;
     private Button signOutButton, signUpButton;
     private DataModel dataModel;
 
+    /**
+     * Called when the activity is first created. Initializes the UI components and ViewModel,
+     * sets up listeners, observes LiveData, and configures navigation options.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after being shut down,
+     * this Bundle contains the data it most recently supplied in onSaveInstanceState.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +58,9 @@ public class SettingsActivity extends AppCompatActivity {
         setupListeners();           // Set up listeners for UI inputs
     }
 
-    // Initialize views
+    /**
+     * Initializes views used in this activity.
+     */
     private void initializeViews(){
         profilePicture = findViewById(R.id.profilePicture);
         nameValue = findViewById(R.id.nameValue);
@@ -58,7 +71,9 @@ public class SettingsActivity extends AppCompatActivity {
         signUpButton = findViewById(R.id.signUpButton);
     }
 
-    // Set up click listeners for editable fields
+    /**
+     * Sets up click listeners for the editable fields: name, gender, weight, and daily goal.
+     */
     private void setupListeners(){
         nameValue.setOnClickListener(v -> showInputDialog("Name","name"));
         genderValue.setOnClickListener(v -> showGenderDialog());
@@ -66,7 +81,10 @@ public class SettingsActivity extends AppCompatActivity {
         goalValue.setOnClickListener(v -> showInputDialog("Daily Goal","dailyGoal"));
     }
 
-    // Set up sign-in and sign-out button visibility and actions
+    /**
+     * Configures the visibility and click actions for the sign-in and sign-out buttons.
+     * If a user is logged in, the sign-out button is shown. Otherwise, the sign-up button is shown.
+     */
     private void setupAuthButtons(){
         // By default, hide both buttons
         signOutButton.setVisibility(View.GONE);
@@ -87,7 +105,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // Set up bottom navigation and handle navigation item clicks
+    /**
+     * Sets up bottom navigation options and handles the actions based on the selected menu item.
+     */
     private void setupBottomNavigation(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
@@ -105,7 +125,12 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    // Update the profile picture based on water intake goal progress
+    /**
+     * Updates the profile picture based on the user's water intake progress.
+     *
+     * @param goal The user's daily water intake goal in milliliters.
+     * @param intake The user's current water intake in milliliters.
+     */
     private void updateProfilePhoto(int goal, int intake) {
         double percentage = (double) intake / goal * 100;
 
@@ -121,7 +146,10 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // Observe changes in the data model and update UI elements accordingly
+
+    /**
+     * Observes changes in the DataModel and updates the UI elements accordingly.
+     */
     private void observeDataModel() {
         dataModel.getName().observe(this, name -> nameValue.setText(name));
         dataModel.getGender().observe(this, gender -> genderValue.setText(gender));
@@ -130,7 +158,12 @@ public class SettingsActivity extends AppCompatActivity {
         dataModel.getIntake().observe(this, intake -> updateProfilePhoto(dataModel.getGoal().getValue(), intake));
     }
 
-    // Show an input dialog for updating user details (e.g., name, weight, daily goal)
+    /**
+     * Shows an input dialog for updating user information such as name, weight, or daily goal.
+     *
+     * @param title The title of the dialog.
+     * @param key The key indicating which value (name, weight, or daily goal) is being updated.
+     */
     private void showInputDialog(String title, String key) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
@@ -175,7 +208,9 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // Show a dialog for selecting gender
+    /**
+     * Shows a dialog for selecting the user's gender.
+     */
     private void showGenderDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Gender");

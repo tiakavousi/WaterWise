@@ -11,21 +11,44 @@ import com.github.mikephil.charting.data.PieEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ChartManager is a utility class to handle the configuration of various charts.
+ * It is designed to work with charts of type T, which extends the Chart class.
+ * Currently, it focuses on configuring PieCharts.
+ *
+ * @param <T> The type of chart, extending Chart.
+ */
 public class ChartManager<T extends Chart<?>> {
     private final T chart;
-
+    /**
+     * Constructor to initialize the ChartManager with a chart object.
+     *
+     * @param chart The chart object of type T.
+     */
     public ChartManager(T chart) {
         this.chart = chart;
     }
 
-    // Pie chart configuration
+    /**
+     * Configures the PieChart to display the water consumption information.
+     *
+     * @param pieChart The PieChart to be configured.
+     * @param goal     The user's daily water goal in milliliters.
+     * @param intake   The current water intake in milliliters.
+     */
     public void configurePieChart(PieChart pieChart, int goal, Integer intake) {
         PieData pieData = generatePieData(goal, intake);
         setupPieChartAppearance(pieChart, pieData, goal, intake);
         pieChart.invalidate();  // Refresh the chart after data changes
     }
 
-    // Method to generate PieData based on goal and intake
+    /**
+     * Generates PieData for the PieChart based on the user's goal and intake.
+     *
+     * @param goal   The user's daily water goal in milliliters.
+     * @param intake The current water intake in milliliters.
+     * @return PieData containing entries for intake and remaining goal.
+     */
     private PieData generatePieData(int goal, int intake) {
         float remainingAmount = goal - intake;
 
@@ -42,7 +65,14 @@ public class ChartManager<T extends Chart<?>> {
         return new PieData(pieDataSet);
     }
 
-    // Method to configure the visual appearance of the PieChart
+    /**
+     * Configures the visual appearance of the PieChart, including text and colors.
+     *
+     * @param pieChart    The PieChart to be configured.
+     * @param pieData     The data to be set in the PieChart.
+     * @param goal        The user's daily water goal in milliliters.
+     * @param intake      The current water intake in milliliters.
+     */
     private void setupPieChartAppearance(PieChart pieChart, PieData pieData, int goal, int intake) {
         float intakePercentage = intake == 0? 0 : (intake * 100f) / goal;
         float intakeInLiters = intake / 1000f;

@@ -13,12 +13,21 @@ import androidx.annotation.Nullable;
 import com.example.WaterWise.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+/**
+ * AddWaterBottomSheetDialog is a custom bottom sheet dialog fragment
+ * that allows users to select an amount of water to add.
+ */
 public class AddWaterBottomSheetDialog extends BottomSheetDialogFragment {
 
     public interface OnWaterAmountSelectedListener {
         void onAmountSelected(int amount);
     }
 
+    /**
+     * Sets the listener for receiving callbacks when an amount of water is selected.
+     *
+     * @param listener The listener that will handle the selected water amount.
+     */
     private OnWaterAmountSelectedListener listener;
 
     public void setOnWaterAmountSelectedListener(OnWaterAmountSelectedListener listener) {
@@ -52,6 +61,13 @@ public class AddWaterBottomSheetDialog extends BottomSheetDialogFragment {
         return dialog;
     }
 
+
+    /**
+     * Handles the selection of a water amount.
+     * Calls the listener's onAmountSelected() method and dismisses the dialog.
+     *
+     * @param amount The selected amount of water in milliliters.
+     */
     private void selectAmount(int amount) {
         if (listener != null) {
             listener.onAmountSelected(amount);

@@ -14,17 +14,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
+/**
+ * FirestoreHelper is a utility class that provides functions to interact with Firestore.
+ * It helps save and retrieve user data including water intake records, user information, and history data.
+ */
 public class FirestoreHelper {
 
     private final FirebaseFirestore db;
     private final String userId;
 
+    /**
+     * Constructor for FirestoreHelper.
+     * Initializes Firestore instance and fetches the current user's ID.
+     */
     public FirestoreHelper() {
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
+    /**
+     * Saves user data such as name, goal, weight, and gender to Firestore.
+     *
+     * @param name  The user's name.
+     * @param goal  The user's daily water intake goal.
+     * @param weight The user's weight.
+     * @param gender The user's gender.
+     */
     public void saveUserData(String name, int goal, int weight, String gender) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("name", name);
@@ -37,6 +52,13 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
 
+    /**
+     * Saves a water intake record to Firestore.
+     *
+     * @param time  The time of water intake.
+     * @param date  The date of water intake.
+     * @param amount The amount of water consumed.
+     */
     public void saveWaterIntakeRecord(String time, String date, int amount) {
         Map<String, Object> recordData = Map.of(
                 "time", time,
@@ -49,6 +71,12 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error adding record", e));
     }
 
+    /**
+     * Fetches the total water intake for a specific date from Firestore.
+     *
+     * @param date     The date for which the intake should be fetched.
+     * @param callback The callback to handle the retrieved intake value.
+     */
     public void fetchDailyIntake( String date, intakeCallback callback) {
         db.collection("users").document(userId).collection("records")
                 .whereEqualTo("date", date)
@@ -67,7 +95,13 @@ public class FirestoreHelper {
                 });
     }
 
-
+    /**
+     * Fetches user data from Firestore, including name, goal, weight, gender, and daily intake.
+     * Updates the DataModel with the fetched data.
+     *
+     * @param dataModel The DataModel instance to update with the fetched data.
+     * @param callback  The callback to indicate the completion of data loading.
+     */
     public void fetchUserData( DataModel dataModel, FirestoreHelperCallback callback) {
         db.collection("users").document(userId).get().addOnCompleteListener(task -> {
             String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
@@ -104,6 +138,12 @@ public class FirestoreHelper {
         });
     }
 
+    /**
+     * Fetches the toatal water intake records for a list of dates and returns the records using a callback.
+     *
+     * @param allDates The list of dates for which intake records should be fetched.
+     * @param callback The callback to handle the retrieved list of HistoryRecords.
+     */
     public void fetchIntakeForDates( List<String> allDates, HistoryIntakeCallback callback) {
         List<HistoryRecord> historyIntakeList = new ArrayList<>();
 
@@ -127,6 +167,12 @@ public class FirestoreHelper {
                     });
         }
     }
+
+    /**
+     * Fetches the user's sign-up date from Firestore.
+     *
+     * @param callback The callback to handle the retrieved sign-up date.
+     */
     public void fetchSignUpDate(FirestoreHelper.SignUpDateCallback callback) {
         db.collection("users").document(userId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
@@ -138,18 +184,30 @@ public class FirestoreHelper {
         });
     }
 
+    /**
+     * Callback interface to handle sign-up date retrieval.
+     */
     public interface SignUpDateCallback {
         void onSignUpDateFetched(String signUpDateStr); // Use String type
     }
 
+    /**
+     * Callback interface to handle retrieval of historical intake data.
+     */
     public interface HistoryIntakeCallback {
         void onIntakeLoaded(List<HistoryRecord> historyIntakeList);
     }
 
+    /**
+     * Callback interface to handle the retrieval of user data.
+     */
     public interface FirestoreHelperCallback {
         void onDataLoaded(int goal, int intake);
     }
 
+    /**
+     * Callback interface to handle the retrieval of daily intake data.
+     */
     public interface intakeCallback {
         void onIntakeLoaded(int totalIntake);
     }

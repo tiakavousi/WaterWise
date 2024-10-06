@@ -24,7 +24,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-
+/**
+ * MainActivity is the central screen of the WaterWise app.
+ * It displays the user's water intake progress using a pie chart,
+ * shows a list of daily water intake records, and provides navigation options.
+ */
 public class MainActivity extends AppCompatActivity {
     private DataModel dataModel;
     private List<IntakeRecord> records = new ArrayList<>();
@@ -35,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
     private int goal;
     private int intake;
 
+    /**
+     * Called when the activity is starting. Initializes views, sets up LiveData observers, and configures the UI.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     * this Bundle contains the data it most recently supplied in onSaveInstanceState.
+     */
     @Override
     // Initializes the activity and sets up the views and logic
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +68,20 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigation();
     }
 
-
-    // Shows the dialog to add water intake
+    /**
+     * Displays a dialog to add water intake.
+     */
     private void showAddWaterDialog() {
         AddWaterBottomSheetDialog dialog = new AddWaterBottomSheetDialog();
         dialog.setOnWaterAmountSelectedListener(this::addWater);
         dialog.show(getSupportFragmentManager(), "AddWaterBottomSheetDialog");
     }
 
-    // Adds water intake and updates the UI
+    /**
+     * Adds a specified amount of water to the current intake and updates the UI.
+     *
+     * @param amount The amount of water to add, in milliliters.
+     */
     private void addWater(int amount) {
         intake += amount;
         dataModel.setIntake(intake);
@@ -86,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
         dataModel.addRecord(newRecord);
     }
 
-    // Set up the RecyclerView for displaying daily intake records
+    /**
+     * Sets up the RecyclerView for displaying daily water intake records.
+     */
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -94,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Observes changes in the DataModel and updates the UI accordingly.
+     */
     private void observeDataModel() {
         dataModel.getRecords().observe(this, records -> {
 
@@ -121,10 +141,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Updates the PieChart with the current goal and intake values.
+     */
     private void updatePieChart() {
         chartManager.configurePieChart(pieChart, goal, intake);
     }
 
+    /**
+     * Sets up the bottom navigation menu for navigating between different sections of the app.
+     */
     private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu menu = bottomNavigationView.getMenu();
