@@ -57,9 +57,10 @@ public class DataModel extends AndroidViewModel {
         String sharedPrefsName = getSharedPrefsName();
         sharedPreferences = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         gson = new Gson();
+        firestoreHelper = new FirestoreHelper();
         checkAndResetDataIfNeeded();
         loadAllData();
-        firestoreHelper = new FirestoreHelper();
+        startListeningToFirestore();
     }
 
     private String getSharedPrefsName() {
@@ -94,16 +95,19 @@ public class DataModel extends AndroidViewModel {
     public void setName(String nameValue) {
         name.setValue(nameValue);
         saveToPreferences(KEY_NAME, nameValue);
+        firestoreHelper.saveUserData(nameValue, goal.getValue(), weight.getValue(), gender.getValue());
     }
 
     public void setWeight(int weightValue) {
         weight.setValue(weightValue);
         saveToPreferences(KEY_WEIGHT, weightValue);
+        firestoreHelper.saveUserData(name.getValue(), goal.getValue(), weightValue, gender.getValue());
     }
 
     public void setGender(String genderValue) {
         gender.setValue(genderValue);
         saveToPreferences(KEY_GENDER, genderValue);
+        firestoreHelper.saveUserData(name.getValue(), goal.getValue(), weight.getValue(), genderValue);
     }
 
     public void setRecords(List<IntakeRecord> newRecords) {
@@ -114,6 +118,7 @@ public class DataModel extends AndroidViewModel {
     public void setGoal(int goalValue) {
         goal.setValue(goalValue);
         saveToPreferences(KEY_GOAL, goalValue);
+        firestoreHelper.saveUserData(name.getValue(), goalValue, weight.getValue(), gender.getValue());
     }
 
     public void setIntake(int intakeValue) {
@@ -171,5 +176,13 @@ public class DataModel extends AndroidViewModel {
             editor.putString(key, (String) value);
         }
         editor.apply();
+    }
+
+    // Start listening to Firestore changes
+    private void startListeningToFirestore() {
+        firestoreHelper.fetchUserData(FirebaseAuth.getInstance().getCurrentUser().getUid(), this, (goal, intake) -> {
+            setGoal(goal);
+            setIntake(intake);
+        });
     }
 }
