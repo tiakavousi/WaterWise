@@ -180,7 +180,7 @@ public class DataModel extends AndroidViewModel {
 
     // Start listening to Firestore changes
     private void startListeningToFirestore() {
-        firestoreHelper.fetchUserData(FirebaseAuth.getInstance().getCurrentUser().getUid(), this, (goal, intake) -> {
+        firestoreHelper.fetchUserData(this, (goal, intake) -> {
             setGoal(goal);
             setIntake(intake);
         });
