@@ -15,9 +15,6 @@ import com.google.firebase.auth.FirebaseUser;
  * If no user is logged in, it navigates to the SignupActivity.
  */
 public class EntryActivity extends AppCompatActivity {
-    // FirebaseAuth instance to manage user authentication
-    private FirebaseAuth auth;
-
     /**
      * onCreate method is called when the activity is first created.
      * It checks the authentication status of the user.
@@ -26,8 +23,8 @@ public class EntryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize FirebaseAuth instance
-        auth = FirebaseAuth.getInstance();
+        // FirebaseAuth instance to manage user authentication
+        FirebaseAuth auth = FirebaseAuth.getInstance();
 
         // Get the currently authenticated user (if any)
         FirebaseUser currentUser = auth.getCurrentUser();

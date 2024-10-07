@@ -47,6 +47,10 @@ public class SignupActivity extends AppCompatActivity {
         setupClickListeners(); // Set click listeners
     }
 
+    /**
+     * Sets up the click listeners for the sign-up button and login redirection text.
+     * Handles the logic for user registration and saving the sign-up date.
+     */
     private void setupClickListeners(){
         // Set click listener for sign-up button
         signupButton.setOnClickListener(view -> {
@@ -90,6 +94,9 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Initializes the UI elements such as EditTexts and Buttons.
+     */
     private void initializeUIElements() {
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
@@ -97,6 +104,13 @@ public class SignupActivity extends AppCompatActivity {
         loginRedirectText = findViewById(R.id.loginRedirectText);
     }
 
+    /**
+     * Validates the input fields to ensure they are not empty.
+     *
+     * @param user The email input entered by the user.
+     * @param pass The password input entered by the user.
+     * @return true if both fields are not empty, false otherwise.
+     */
     private boolean validateInput(String user, String pass) {
         if (user.isEmpty()) {
             signupEmail.setError("Email cannot be empty");

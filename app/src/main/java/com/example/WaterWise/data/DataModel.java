@@ -39,7 +39,6 @@ public class DataModel extends AndroidViewModel {
     private static final String KEY_GENDER = "key_gender";
     private static final String KEY_SIGN_UP_DATE = "key_sign_up_date";
 
-
     // Default values for user properties
     public static final int DEFAULT_GOAL = 2000;
     public static final int DEFAULT_INTAKE = 0;
@@ -201,7 +200,6 @@ public class DataModel extends AndroidViewModel {
         }
         firestoreHelper.saveWaterIntakeRecord(record.getTime(),record.getDate(), record.getAmount());
     }
-
 
     /**
      * Sets the user's sign-up date and saves it to SharedPreferences.

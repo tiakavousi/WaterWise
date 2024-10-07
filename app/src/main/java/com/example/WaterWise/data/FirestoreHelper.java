@@ -139,7 +139,7 @@ public class FirestoreHelper {
     }
 
     /**
-     * Fetches the toatal water intake records for a list of dates and returns the records using a callback.
+     * Fetches the total water intake records for a list of dates and returns the records using a callback.
      *
      * @param allDates The list of dates for which intake records should be fetched.
      * @param callback The callback to handle the retrieved list of HistoryRecords.
