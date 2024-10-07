@@ -170,24 +170,28 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Create an EditText field to get user input
         final EditText input = new EditText(this);
-        String currentValue;
+        String currentValue = "";
 
         // Set the current value of the field in the EditText for editing
         if (key.equals("weight")) {
-            currentValue = weightValue.getText().toString();
+            currentValue = weightValue.getText().toString().replace("kg", "").trim();
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
         } else if (key.equals("dailyGoal")) {
-            currentValue = goalValue.getText().toString();
+            currentValue = goalValue.getText().toString().replace("ml", "").trim();
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
         } else {
             currentValue = nameValue.getText().toString();
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         input.setText(currentValue);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
         // Set the save action for the dialog
         builder.setPositiveButton("Save", (dialog, which) -> {
-            String value = input.getText().toString();
-            if (!value.isEmpty()) {
+            String value = input.getText().toString().trim();
+
+            // Call validation method and proceed if the input is valid
+            if (validateInput(value, key)) {
                 switch (key) {
                     case "name":
                         dataModel.setName(value);
@@ -206,6 +210,51 @@ public class SettingsActivity extends AppCompatActivity {
         // Set the cancel action for the dialog
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    /**
+     * Validates the input based on the key (e.g., weight, dailyGoal) and ensures that the value
+     * is within the allowed range. Displays a Toast message if the input is invalid.
+     *
+     * @param value The input value to be validated.
+     * @param key   The key indicating which value (name, weight, or daily goal) is being validated.
+     * @return True if the input is valid, false otherwise.
+     */
+    private boolean validateInput(String value, String key) {
+        try {
+            switch (key) {
+                case "weight":
+                    int weight = Integer.parseInt(value);
+                    if (weight <= 0 || weight > 200) {
+                        Toast.makeText(SettingsActivity.this, "Weight Must be between 1 and 200 kg.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    break;
+
+                case "dailyGoal":
+                    int dailyGoal = Integer.parseInt(value);
+                    if (dailyGoal <= 2000 || dailyGoal > 5000) {
+                        Toast.makeText(SettingsActivity.this, "Daily goal must be between 2L and 5L.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    break;
+
+                case "name":
+                    if (value.isEmpty()) {
+                        Toast.makeText(SettingsActivity.this, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    break;
+
+                default:
+                    return true;
+            }
+        } catch (NumberFormatException e) {
+            // Handle any number format exceptions that might occur during parsing
+            Toast.makeText(SettingsActivity.this, "Invalid input format.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     /**
