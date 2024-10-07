@@ -47,7 +47,7 @@ public class DataModel extends AndroidViewModel {
     public static final int DEFAULT_WEIGHT = 40;
     public static final String DEFAULT_NAME = "User";
     public static final String DEFAULT_GENDER = "Female";
-    public static final String DEFAULT_SIGN_UP_DATE = "Not Available";
+    public static final String DEFAULT_SIGN_UP_DATE = "2024-01-01";
     private static final String KEY_LAST_RESET_DATE = "key_last_reset_date";
 
     // SharedPreferences for local data storage
@@ -116,14 +116,70 @@ public class DataModel extends AndroidViewModel {
         }
     }
 
-    // Getter methods for LiveData fields
+    /**
+     * Returns a MutableLiveData object that holds the user's daily water intake goal.
+     * This value is observed to update the UI when the goal changes.
+     *
+     * @return MutableLiveData<Integer> representing the user's water intake goal in milliliters.
+     */
     public MutableLiveData<Integer> getGoal() { return goal; }
+
+    /**
+     * Returns a MutableLiveData object that holds the user's current water intake.
+     * This value is observed to update the UI when the intake changes.
+     *
+     * @return MutableLiveData<Integer> representing the user's current water intake in milliliters.
+     */
     public MutableLiveData<Integer> getIntake() { return intake; }
+
+    /**
+     * Returns a MutableLiveData object that holds the user's name.
+     * This value is observed to update the UI when the user's name changes.
+     *
+     * @return MutableLiveData<String> representing the user's name.
+     */
     public MutableLiveData<String> getName() { return name; }
+
+    /**
+     * Returns a MutableLiveData object that holds the user's weight.
+     * This value is observed to update the UI when the user's weight changes.
+     *
+     * @return MutableLiveData<Integer> representing the user's weight (in kilograms).
+     */
     public MutableLiveData<Integer> getWeight() { return weight; }
+
+    /**
+     * Returns a MutableLiveData object that holds the user's gender.
+     * This value is observed to update the UI when the user's gender changes.
+     *
+     * @return MutableLiveData<String> representing the user's gender.
+     */
     public MutableLiveData<String> getGender() { return gender; }
+
+    /**
+     * Returns a MutableLiveData object that holds a list of IntakeRecord objects.
+     * These records represent individual instances of water intake throughout the day.
+     * This value is observed to update the UI when the intake records change.
+     *
+     * @return MutableLiveData<List<IntakeRecord>> representing the list of intake records.
+     */
     public MutableLiveData<List<IntakeRecord>> getRecords() { return records; }
+
+    /**
+     * Returns a MutableLiveData object that holds a list of HistoryRecord objects.
+     * These records represent the user's historical water intake data (e.g., daily summaries).
+     * This value is observed to update the UI when the history records change.
+     *
+     * @return MutableLiveData<List<HistoryRecord>> representing the list of history records.
+     */
     public MutableLiveData<List<HistoryRecord>> getHistoryRecords() { return historyRecords;}
+
+    /**
+     * Returns a MutableLiveData object that holds the user's sign-up date.
+     * This value is observed to update the UI when the sign-up date changes.
+     *
+     * @return MutableLiveData<String> representing the user's sign-up date.
+     */
     public MutableLiveData<String> getSignUpDate() { return signUpDate; }
 
     /**
@@ -215,21 +271,28 @@ public class DataModel extends AndroidViewModel {
         firestoreHelper.saveSignUpDate(signUpDateValue);
     }
 
+    /**
+     * Checks if the sign-up date is available in LiveData or SharedPreferences.
+     * If not, it attempts to fetch the sign-up date from Firestore.
+     * The fetched sign-up date is then saved to both LiveData and SharedPreferences.
+     */
     public void checkAndFetchSignUpDate() {
         // Check if sign-up date is already available in LiveData or SharedPreferences
         if (getSignUpDate().getValue() == null || getSignUpDate().getValue().isEmpty() ||
                 getSignUpDate().getValue().equals(DEFAULT_SIGN_UP_DATE)) {
 
-            // Fetch sign-up date from Firestore
+            // Sign-up date is not available, so we fetch it from Firestore
             firestoreHelper.fetchSignUpDate(fetchedSignUpDateStr -> {
                 if (fetchedSignUpDateStr != null) {
-                    // Set and save the fetched sign-up date in LiveData and SharedPreferences
+                    // If a valid sign-up date is fetched, save it to LiveData and SharedPreferences
                     setSignUpDate(fetchedSignUpDateStr);
                 } else {
+                    // Log an error if fetching the sign-up date from Firestore failed
                     Log.e("DataModel", "Failed to fetch sign-up date from Firestore.");
                 }
             });
         } else {
+            // Sign-up date is already available, so log this information
             Log.d("DataModel", "Sign-up date is already available: " + getSignUpDate().getValue());
         }
     }
@@ -340,35 +403,46 @@ public class DataModel extends AndroidViewModel {
         });
     }
 
+    /**
+     * Returns a list of date strings between the specified start and end dates, inclusive.
+     * The dates are formatted as "yyyy-MM-dd".
+     *
+     * @param startDateStr The start date as a string in "yyyy-MM-dd" format.
+     * @param endDateStr   The end date as a string in "yyyy-MM-dd" format.
+     * @return A list of date strings between the start and end dates, or an empty list if the input is invalid or parsing fails.
+     */
     private List<String> getDatesBetween(String startDateStr, String endDateStr) {
         List<String> dates = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
+            // Validate input: check if either startDateStr or endDateStr is null or empty
             if (startDateStr == null || startDateStr.isEmpty() || endDateStr == null || endDateStr.isEmpty()) {
                 Log.e("DataModel", "Invalid input: startDate or endDate is null or empty");
                 return dates; // Return empty list in case of invalid input
             }
             // Parse the start and end dates from strings
             Date startDate = dateFormat.parse(startDateStr);
-            Log.d("s t a r t date", startDateStr);
             Date endDate = dateFormat.parse(endDateStr);
-            Log.d("e n d date", endDateStr);
+
             // Set the calendar to the start date
             calendar.setTime(startDate);
 
+            // Loop through the dates from startDate to endDate, adding each to the list
             while (!calendar.getTime().after(endDate)) {
-                dates.add(dateFormat.format(calendar.getTime())); // Add the date string
+                dates.add(dateFormat.format(calendar.getTime())); // Add the date string in "yyyy-MM-dd" format
                 calendar.add(Calendar.DATE, 1); // Move to the next day
             }
 
         } catch (ParseException e) {
+            // Log the specific parse exception if the date format is invalid
             Log.e("DataModel", "ParseException in getDatesBetween", e);
         }catch (Exception e) {
             // Catch any other unexpected exceptions and log them
             Log.e("DataModel", "Unexpected error in getDatesBetween", e);
         }
 
+        // Return the list of dates, which may be empty if an error occurred
         return dates;
     }
 }
