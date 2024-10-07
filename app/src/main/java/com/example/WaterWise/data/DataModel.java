@@ -82,7 +82,7 @@ public class DataModel extends AndroidViewModel {
 
         // Load data from shared preferences
         loadAllData();
-//        checkAndFetchSignUpDate();
+        checkAndFetchSignUpDate();
 
         // Start listening to Firestore for data updates
         startListeningToFirestore();
@@ -215,24 +215,24 @@ public class DataModel extends AndroidViewModel {
         firestoreHelper.saveSignUpDate(signUpDateValue);
     }
 
-//    public void checkAndFetchSignUpDate() {
-//        // Check if sign-up date is already available in LiveData or SharedPreferences
-//        if (getSignUpDate().getValue() == null || getSignUpDate().getValue().isEmpty() ||
-//                getSignUpDate().getValue().equals(DEFAULT_SIGN_UP_DATE)) {
-//
-//            // Fetch sign-up date from Firestore
-//            firestoreHelper.fetchSignUpDate(fetchedSignUpDateStr -> {
-//                if (fetchedSignUpDateStr != null) {
-//                    // Set and save the fetched sign-up date in LiveData and SharedPreferences
-//                    setSignUpDate(fetchedSignUpDateStr);
-//                } else {
-//                    Log.e("DataModel", "Failed to fetch sign-up date from Firestore.");
-//                }
-//            });
-//        } else {
-//            Log.d("DataModel", "Sign-up date is already available: " + getSignUpDate().getValue());
-//        }
-//    }
+    public void checkAndFetchSignUpDate() {
+        // Check if sign-up date is already available in LiveData or SharedPreferences
+        if (getSignUpDate().getValue() == null || getSignUpDate().getValue().isEmpty() ||
+                getSignUpDate().getValue().equals(DEFAULT_SIGN_UP_DATE)) {
+
+            // Fetch sign-up date from Firestore
+            firestoreHelper.fetchSignUpDate(fetchedSignUpDateStr -> {
+                if (fetchedSignUpDateStr != null) {
+                    // Set and save the fetched sign-up date in LiveData and SharedPreferences
+                    setSignUpDate(fetchedSignUpDateStr);
+                } else {
+                    Log.e("DataModel", "Failed to fetch sign-up date from Firestore.");
+                }
+            });
+        } else {
+            Log.d("DataModel", "Sign-up date is already available: " + getSignUpDate().getValue());
+        }
+    }
 
 
     /**
@@ -343,13 +343,17 @@ public class DataModel extends AndroidViewModel {
     private List<String> getDatesBetween(String startDateStr, String endDateStr) {
         List<String> dates = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
-//        startDateStr = "2024-10-01";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
+            if (startDateStr == null || startDateStr.isEmpty() || endDateStr == null || endDateStr.isEmpty()) {
+                Log.e("DataModel", "Invalid input: startDate or endDate is null or empty");
+                return dates; // Return empty list in case of invalid input
+            }
             // Parse the start and end dates from strings
             Date startDate = dateFormat.parse(startDateStr);
+            Log.d("s t a r t date", startDateStr);
             Date endDate = dateFormat.parse(endDateStr);
-
+            Log.d("e n d date", endDateStr);
             // Set the calendar to the start date
             calendar.setTime(startDate);
 
@@ -360,6 +364,9 @@ public class DataModel extends AndroidViewModel {
 
         } catch (ParseException e) {
             Log.e("DataModel", "ParseException in getDatesBetween", e);
+        }catch (Exception e) {
+            // Catch any other unexpected exceptions and log them
+            Log.e("DataModel", "Unexpected error in getDatesBetween", e);
         }
 
         return dates;
