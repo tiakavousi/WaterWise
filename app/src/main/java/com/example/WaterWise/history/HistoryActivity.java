@@ -19,6 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
@@ -33,38 +34,46 @@ public class HistoryActivity extends AppCompatActivity {
         dataModel = new ViewModelProvider(this).get(DataModel.class);
         dataModel.getGoal().observe(this, goal -> {userGoal = goal;});
 
+        initializeUIElements();
+        displayDayOfWeek();
+        observeGoalAndIntake();
+        setUpBottomNavigationBar();
+        setUpHistoryRecyclerView();
+        dataModel.loadHistoryRecords();
+    }
+
+    private void initializeUIElements(){
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
         goalTextView = findViewById(R.id.goal_text);
         remainingTextView = findViewById(R.id.remaining_text);
+    }
 
-        displayDayOfWeek();
-        observeGoalAndIntake();
-        setUpBottomNavigationBar();
-
+    private void setUpHistoryRecyclerView() {
         RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(this));
-
-       dataModel.getHistoryRecords().observe(this, historyList -> {
-            Collections.sort(historyList, (record1, record2)-> {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    try {
-                        Date date1 = dateFormat.parse(record1.getDate());
-                        Date date2 = dateFormat.parse(record2.getDate());
-                        return date2.compareTo(date1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return 0;
-                });
-           // Fetch the goal from the data model
-           int goalInMiliLiters = dataModel.getGoal().getValue();
+        dataModel.getHistoryRecords().observe(this, historyList -> {
+            sortHistoryRecords(historyList);
+            // Fetch the goal from the data model
+            int goalInMiliLiters = dataModel.getGoal().getValue();
             HistoryRecordAdapter adapter = new HistoryRecordAdapter(historyList, goalInMiliLiters);
             recyclerView2.setAdapter(adapter);
         });
-
-        dataModel.loadHistoryRecords();
     }
+    private void sortHistoryRecords(List<HistoryRecord> historyList) {
+        Collections.sort(historyList, (record1, record2)-> {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            try {
+                Date date1 = dateFormat.parse(record1.getDate());
+                Date date2 = dateFormat.parse(record2.getDate());
+                return date2.compareTo(date1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return 0;
+        });
+    }
+
     private void observeGoalAndIntake() {
         dataModel.getGoal().observe(this, goal -> {
             double goalInLiters = goal / 1000.0;
