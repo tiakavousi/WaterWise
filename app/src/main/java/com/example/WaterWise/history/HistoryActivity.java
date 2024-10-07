@@ -10,10 +10,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.WaterWise.data.DataModel;
-import com.example.WaterWise.data.FirestoreHelper;
-import com.example.WaterWise.home.MainActivity;
 import com.example.WaterWise.R;
+import com.example.WaterWise.data.DataModel;
+import com.example.WaterWise.home.MainActivity;
 import com.example.WaterWise.settings.SettingsActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -63,8 +62,8 @@ public class HistoryActivity extends AppCompatActivity {
             HistoryRecordAdapter adapter = new HistoryRecordAdapter(historyList, goalInMiliLiters);
             recyclerView2.setAdapter(adapter);
         });
-        HistoryManager historyManager = new HistoryManager(new FirestoreHelper());
-        historyManager.fetchHistoryRecords(dataModel);
+
+        dataModel.loadHistoryRecords();
     }
     private void observeGoalAndIntake() {
         dataModel.getGoal().observe(this, goal -> {

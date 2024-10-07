@@ -16,8 +16,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -80,6 +82,7 @@ public class DataModel extends AndroidViewModel {
 
         // Load data from shared preferences
         loadAllData();
+//        checkAndFetchSignUpDate();
 
         // Start listening to Firestore for data updates
         startListeningToFirestore();
@@ -210,8 +213,27 @@ public class DataModel extends AndroidViewModel {
         signUpDate.setValue(signUpDateValue);
         saveToPreferences(KEY_SIGN_UP_DATE, signUpDateValue);
         firestoreHelper.saveSignUpDate(signUpDateValue);
-
     }
+
+//    public void checkAndFetchSignUpDate() {
+//        // Check if sign-up date is already available in LiveData or SharedPreferences
+//        if (getSignUpDate().getValue() == null || getSignUpDate().getValue().isEmpty() ||
+//                getSignUpDate().getValue().equals(DEFAULT_SIGN_UP_DATE)) {
+//
+//            // Fetch sign-up date from Firestore
+//            firestoreHelper.fetchSignUpDate(fetchedSignUpDateStr -> {
+//                if (fetchedSignUpDateStr != null) {
+//                    // Set and save the fetched sign-up date in LiveData and SharedPreferences
+//                    setSignUpDate(fetchedSignUpDateStr);
+//                } else {
+//                    Log.e("DataModel", "Failed to fetch sign-up date from Firestore.");
+//                }
+//            });
+//        } else {
+//            Log.d("DataModel", "Sign-up date is already available: " + getSignUpDate().getValue());
+//        }
+//    }
+
 
     /**
      * Loads all data from shared preferences.
@@ -255,6 +277,9 @@ public class DataModel extends AndroidViewModel {
         Type type = new TypeToken<List<IntakeRecord>>() {}.getType();
         List<IntakeRecord> savedRecords = json != null ? gson.fromJson(json, type) : new ArrayList<>();
         records.setValue(savedRecords);
+        for ( IntakeRecord i : records.getValue()) {
+            Log.d("r e c o r d s", i.getAmount()+"");
+        }
     }
 
     /**
@@ -281,5 +306,62 @@ public class DataModel extends AndroidViewModel {
             setGoal(goal);
             setIntake(intake);
         });
+    }
+
+    public void loadHistoryRecords() {
+        String signUpDateStr = getSignUpDate().getValue();
+        if (signUpDateStr == null || signUpDateStr.isEmpty()) {
+            Log.d("DataModel", "Sign-up date is missing.");
+            historyRecords.setValue(new ArrayList<>()); // Handle empty sign-up date
+            return;
+        }
+        String currentDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        // Generate a list of dates from sign-up date to current date
+        List<String> allDates = getDatesBetween(signUpDateStr, currentDateStr);
+
+        // Fetch intake records for all dates
+        loadIntakeRecordsForDates(allDates);
+    }
+
+    /**
+     * Fetches intake records for a list of dates and updates LiveData.
+     *
+     * @param allDates The list of dates to fetch intake records for.
+     */
+    private void loadIntakeRecordsForDates(List<String> allDates) {
+        firestoreHelper.fetchIntakeForDates(allDates, historyRecordsResult -> {
+            if (historyRecordsResult != null && !historyRecordsResult.isEmpty()) {
+                historyRecords.setValue(historyRecordsResult); // Update LiveData with the full history records
+            } else {
+                Log.d("DataModel", "No history records found.");
+                historyRecords.setValue(new ArrayList<>());
+            }
+        });
+    }
+
+    private List<String> getDatesBetween(String startDateStr, String endDateStr) {
+        List<String> dates = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+//        startDateStr = "2024-10-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            // Parse the start and end dates from strings
+            Date startDate = dateFormat.parse(startDateStr);
+            Date endDate = dateFormat.parse(endDateStr);
+
+            // Set the calendar to the start date
+            calendar.setTime(startDate);
+
+            while (!calendar.getTime().after(endDate)) {
+                dates.add(dateFormat.format(calendar.getTime())); // Add the date string
+                calendar.add(Calendar.DATE, 1); // Move to the next day
+            }
+
+        } catch (ParseException e) {
+            Log.e("DataModel", "ParseException in getDatesBetween", e);
+        }
+
+        return dates;
     }
 }
