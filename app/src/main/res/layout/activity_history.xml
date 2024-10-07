@@ -22,18 +22,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:padding="16dp">
-
+            <!-- Day of Week Text on the left -->
             <TextView
                 android:id="@+id/dayOfWeekTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Sunday"
                 android:textSize="24sp"
                 android:textColor="@color/black"
                 android:fontFamily="sans-serif-medium" />
 
+            <!-- Date Text on the right -->
             <TextView
                 android:id="@+id/dateTextView"
                 android:layout_width="wrap_content"
@@ -45,55 +47,20 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/remaining_goal_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dateCard">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/goal_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your daily goal: 0 ml"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-            <TextView
-                android:id="@+id/remaining_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Remaining: 0 ml"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="History"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/remaining_goal_card"/>
+        app:layout_constraintTop_toBottomOf="@id/dateCard"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView2"
         android:layout_width="0dp"
