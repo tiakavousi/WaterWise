@@ -39,9 +39,14 @@ public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdap
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         HistoryRecord record = historyList.get(position);
         holder.dateTextView.setText(record.getDate());
-        int percentage = record.calculatePercentage(goal);
+        float percentage = record.calculatePercentage(goal);
+        // Check if the percentage is a whole number or requires a decimal place
+        if (percentage % 1 == 0) {
+            holder.percentageTextView.setText(String.format("%.0f%%", percentage)); // No decimal places
+        } else {
+            holder.percentageTextView.setText(String.format("%.1f%%", percentage)); // One decimal place
+        }
 
-        holder.percentageTextView.setText(percentage + "%");
         // Adjust the background based on percentage
         holder.circleProgressView.setPercentage(percentage);
 
