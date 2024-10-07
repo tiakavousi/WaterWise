@@ -30,8 +30,8 @@ import java.util.Locale;
 public class HistoryActivity extends AppCompatActivity {
     private DataModel dataModel;
     private int userGoal;
-    // UI elements for displaying day of the week, current date, goal, and remaining intake
-    private TextView dayOfWeekTextView, dateTextView, goalTextView, remainingTextView;
+    // UI elements for displaying day of the week and current date
+    private TextView dayOfWeekTextView, dateTextView;
 
     /**
      * Called when the activity is first created. Initializes the UI and sets up the RecyclerView,
@@ -49,7 +49,6 @@ public class HistoryActivity extends AppCompatActivity {
 
         initializeUIElements();
         displayDayOfWeek();
-        observeGoalAndIntake();
         setUpBottomNavigationBar();
         setUpHistoryRecyclerView();
         dataModel.loadHistoryRecords();
@@ -62,8 +61,6 @@ public class HistoryActivity extends AppCompatActivity {
     private void initializeUIElements(){
         dayOfWeekTextView = findViewById(R.id.dayOfWeekTextView);
         dateTextView = findViewById(R.id.dateTextView);
-        goalTextView = findViewById(R.id.goal_text);
-        remainingTextView = findViewById(R.id.remaining_text);
     }
 
     /**
@@ -105,27 +102,6 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Observes changes to the user's water intake goal and intake amount, and updates the
-     * goal and remaining water intake accordingly in the UI.
-     */
-    private void observeGoalAndIntake() {
-        // Observe and update the goal text
-        dataModel.getGoal().observe(this, goal -> {
-            double goalInLiters = goal / 1000.0;
-            String goalText = (goalInLiters % 1 == 0) ? String.format("%.0f L", goalInLiters) : String.format("%.1f L", goalInLiters);
-            goalTextView.setText("Goal: " + goalText);
-        });
-        // Observe and update the remaining intake text
-        dataModel.getIntake().observe(this, intake -> {
-            double intakeInLiters = intake / 1000.0;
-            double goalInLiters = dataModel.getGoal().getValue() / 1000.0;
-            double remainingInLiters = goalInLiters - intakeInLiters;
-            // Ensure remaining intake does not go below 0
-            String remainingText = (remainingInLiters % 1 == 0) ? String.format("%.0f L", (remainingInLiters > 0 ? remainingInLiters : 0)) : String.format("%.1f L", (remainingInLiters > 0 ? remainingInLiters : 0));
-            remainingTextView.setText("Remaining: " + remainingText);
-        });
-    }
 
     /**
      * Displays the current day of the week and date at the top of the activity.

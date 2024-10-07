@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private  TextView recordsMessage;
     private int goal;
     private int intake;
+    private TextView goalTextView, remainingTextView;
 
     /**
      * Called when the activity is starting. Initializes views, sets up LiveData observers, and configures the UI.
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);
+        goalTextView = findViewById(R.id.goal_text);
+        remainingTextView = findViewById(R.id.remaining_text);
 
         setupRecyclerView();
         // Observe changes to LiveData
@@ -66,6 +69,23 @@ public class MainActivity extends AppCompatActivity {
         // Initial chart update
         updatePieChart();
         setupBottomNavigation();
+    }
+
+    /**
+     * Observes changes to the user's water intake goal and intake amount, and updates the
+     * goal and remaining water intake accordingly in the UI.
+     */
+    private void updateReportCard() {
+        // Observe and update the goal text
+        double goalInLiters = goal / 1000.0;
+        double intakeInLiters = intake / 1000.0;
+        double remainingInLiters = goalInLiters - intakeInLiters;
+
+        String goalText = (goalInLiters % 1 == 0) ? String.format("%.0f L", goalInLiters) : String.format("%.1f L", goalInLiters);
+        String remainingText = (remainingInLiters % 1 == 0) ? String.format("%.0f L", (remainingInLiters > 0 ? remainingInLiters : 0)) : String.format("%.1f L", (remainingInLiters > 0 ? remainingInLiters : 0));
+
+        goalTextView.setText("Goal: " + goalText);
+        remainingTextView.setText("Remaining: " + remainingText);
     }
 
     /**
@@ -133,11 +153,13 @@ public class MainActivity extends AppCompatActivity {
         dataModel.getGoal().observe(this, goalFromDataModel -> {
             goal = goalFromDataModel != null ? goalFromDataModel : DataModel.DEFAULT_GOAL;
             updatePieChart();
+            updateReportCard();
         });
 
         dataModel.getIntake().observe(this, intakeFromDataModel -> {
             intake = intakeFromDataModel != null ? intakeFromDataModel : DataModel.DEFAULT_INTAKE;
             updatePieChart();
+            updateReportCard();
         });
     }
 
