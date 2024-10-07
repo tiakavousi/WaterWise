@@ -5,9 +5,9 @@ package com.example.WaterWise.home;
  */
 public class IntakeRecord {
     // Fields to store the time of intake, date of intake, and the amount of water consumed
-    private String time;
-    private String date;
-    private int amount;
+    private final String time;
+    private final String date;
+    private final int amount;
 
     /**
      * Constructor to initialize an intake record with time, date, and amount.

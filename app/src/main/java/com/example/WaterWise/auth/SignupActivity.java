@@ -2,27 +2,21 @@ package com.example.WaterWise.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.WaterWise.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.example.WaterWise.data.DataModel;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 
 /**
@@ -32,6 +26,8 @@ import java.util.Map;
 public class SignupActivity extends AppCompatActivity {
     // Declare Firebase authentication instance and UI elements
     private FirebaseAuth auth;
+    private DataModel dataModel;
+
     // UI elements
     private EditText signupEmail, signupPassword;
     private TextView loginRedirectText;
@@ -46,79 +42,84 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // Initialize FirebaseAuth instance
-        auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance(); // Initialize FirebaseAuth instance
+        initializeUIElements(); // Initialize UI elements
+        setupClickListeners(); // Set click listeners
+    }
 
-        // Initialize UI elements
+    /**
+     * Sets up the click listeners for the sign-up button and login redirection text.
+     * Handles the logic for user registration and saving the sign-up date.
+     */
+    private void setupClickListeners(){
+        // Set click listener for sign-up button
+        signupButton.setOnClickListener(view -> {
+
+            // Get email and password input from EditTexts
+            String user = signupEmail.getText().toString().trim();
+            String pass = signupPassword.getText().toString().trim();
+
+            // Validate input fields: Check if email or password are empty
+            if (!validateInput(user, pass)) {
+                return;
+            }
+
+            // Create a new user with Firebase Authentication
+            auth.createUserWithEmailAndPassword(user, pass).addOnCompleteListener(task -> {
+                // If user creation is successful
+                if (task.isSuccessful()) {
+                    // Format the current date as the sign-up date
+                    String signUpDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+                    // Save the sign-up date
+                    dataModel = new ViewModelProvider(
+                            SignupActivity.this,
+                            ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+                    ).get(DataModel.class);
+
+                    dataModel.setSignUpDate(signUpDate);
+
+                    Toast.makeText(SignupActivity.this, "SignUp Successful", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+                } else {
+                    // Show error message if user creation fails
+                    Toast.makeText(SignupActivity.this, "SignUp Failed" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        // Set click listener for the login redirection text
+        loginRedirectText.setOnClickListener(view -> {
+            // Redirect to LoginActivity when the user clicks the "Log In" link
+            startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+        });
+    }
+
+    /**
+     * Initializes the UI elements such as EditTexts and Buttons.
+     */
+    private void initializeUIElements() {
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
         signupButton = findViewById(R.id.signup_button);
         loginRedirectText = findViewById(R.id.loginRedirectText);
+    }
 
-        // Set click listener for sign-up button
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Get email and password input from EditTexts
-                String user = signupEmail.getText().toString().trim();
-                String pass = signupPassword.getText().toString().trim();
-
-                // Validate input fields: Check if email or password are empty
-                if (user.isEmpty()){
-                    signupEmail.setError("Email cannot be empty");
-                }
-                if (pass.isEmpty()){
-                    signupPassword.setError("Password cannot be empty");
-                } else {
-                    // Create a new user with Firebase Authentication
-                    auth.createUserWithEmailAndPassword(user, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            // If user creation is successful
-                            if (task.isSuccessful()) {
-                                // Format the current date as the sign-up date
-                                String signUpDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                                // Save the sign-up date to Firestore
-                                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                String userId = auth.getCurrentUser().getUid();
-                                Map<String, Object> userData = new HashMap<>();
-                                userData.put("signUpDate", signUpDate);
-
-                                // Add the sign-up date to the Firestore database for the current user
-                                db.collection("users").document(userId).set(userData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            // If saving sign-up date is successful, show success message and redirect to LoginActivity
-                                            Toast.makeText(SignupActivity.this, "SignUp Successful", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(SignupActivity.this, LoginActivity.class));
-                                        } else {
-                                            // Show error message if saving sign-up date fails
-                                            Toast.makeText(
-                                                    SignupActivity.this,
-                                                     "Failed to save sign-up date: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            } else {
-                                // Show error message if user creation fails
-                                Toast.makeText(SignupActivity.this, "SignUp Failed" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-
-            }
-        });
-
-        // Set click listener for the login redirection text
-        loginRedirectText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Redirect to LoginActivity when the user clicks the "Log In" link
-                startActivity(new Intent(SignupActivity.this, LoginActivity.class));
-            }
-        });
-
+    /**
+     * Validates the input fields to ensure they are not empty.
+     *
+     * @param user The email input entered by the user.
+     * @param pass The password input entered by the user.
+     * @return true if both fields are not empty, false otherwise.
+     */
+    private boolean validateInput(String user, String pass) {
+        if (user.isEmpty()) {
+            signupEmail.setError("Email cannot be empty");
+            return false;
+        }
+        if (pass.isEmpty()) {
+            signupPassword.setError("Password cannot be empty");
+            return false;
+        }
+        return true;
     }
 }
