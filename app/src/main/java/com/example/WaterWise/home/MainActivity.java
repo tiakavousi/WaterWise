@@ -15,14 +15,12 @@ import com.example.WaterWise.R;
 import com.example.WaterWise.data.DataModel;
 import com.example.WaterWise.history.HistoryActivity;
 import com.example.WaterWise.settings.SettingsActivity;
+import com.example.WaterWise.utils.HomeUtils;
 import com.github.mikephil.charting.charts.PieChart;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * MainActivity is the central screen of the WaterWise app.
@@ -108,11 +106,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Update the PieChart with the new intake and goal
         updatePieChart();
-
         // Create a new record for the intake
-        String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        IntakeRecord newRecord = new IntakeRecord(currentTime,currentDate, amount);
+        IntakeRecord newRecord = HomeUtils.createIntakeRecord(amount);
 
         // Add the new record to the list
         records.add(newRecord);

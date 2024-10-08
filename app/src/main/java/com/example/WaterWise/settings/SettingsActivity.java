@@ -20,6 +20,7 @@ import com.example.WaterWise.auth.EntryActivity;
 import com.example.WaterWise.data.DataModel;
 import com.example.WaterWise.history.HistoryActivity;
 import com.example.WaterWise.home.MainActivity;
+import com.example.WaterWise.utils.SettingsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -132,18 +133,8 @@ public class SettingsActivity extends AppCompatActivity {
      * @param intake The user's current water intake in milliliters.
      */
     private void updateProfilePhoto(int goal, int intake) {
-        double percentage = (double) intake / goal * 100;
-
-        // Set profile picture based on the percentage of goal completed
-        if (percentage <= 25) {
-            profilePicture.setImageResource(R.drawable.thirsty_cat);
-        } else if (percentage <= 50) {
-            profilePicture.setImageResource(R.drawable.drinking_cat);
-        } else if (percentage <= 75) {
-            profilePicture.setImageResource(R.drawable.cool_cat);
-        } else {
-            profilePicture.setImageResource(R.drawable.happy_cat);
-        }
+        int profileImageResId = SettingsUtils.getProfileImage(goal, intake);
+        profilePicture.setImageResource(profileImageResId);
     }
 
 
@@ -221,40 +212,23 @@ public class SettingsActivity extends AppCompatActivity {
      * @return True if the input is valid, false otherwise.
      */
     private boolean validateInput(String value, String key) {
-        try {
+        boolean isValid = SettingsUtils.validateInput(value, key);
+        if (!isValid) {
             switch (key) {
                 case "weight":
-                    int weight = Integer.parseInt(value);
-                    if (weight <= 0 || weight > 200) {
-                        Toast.makeText(SettingsActivity.this, "Weight Must be between 1 and 200 kg.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
+                    Toast.makeText(SettingsActivity.this, "Weight must be between 1 and 200 kg.", Toast.LENGTH_SHORT).show();
                     break;
-
                 case "dailyGoal":
-                    int dailyGoal = Integer.parseInt(value);
-                    if (dailyGoal <= 2000 || dailyGoal > 5000) {
-                        Toast.makeText(SettingsActivity.this, "Daily goal must be between 2L and 5L.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
+                    Toast.makeText(SettingsActivity.this, "Daily goal must be between 2L and 5L.", Toast.LENGTH_SHORT).show();
                     break;
-
                 case "name":
-                    if (value.isEmpty()) {
-                        Toast.makeText(SettingsActivity.this, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
+                    Toast.makeText(SettingsActivity.this, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
                     break;
-
                 default:
-                    return true;
+                    Toast.makeText(SettingsActivity.this, "Invalid input format.", Toast.LENGTH_SHORT).show();
             }
-        } catch (NumberFormatException e) {
-            // Handle any number format exceptions that might occur during parsing
-            Toast.makeText(SettingsActivity.this, "Invalid input format.", Toast.LENGTH_SHORT).show();
-            return false;
         }
-        return true;
+        return isValid;
     }
 
     /**

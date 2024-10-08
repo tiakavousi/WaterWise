@@ -45,8 +45,17 @@ dependencies {
     implementation("com.github.TutorialsAndroid:GButton:v1.0.19")
     implementation("com.google.code.gson:gson:2.8.9")
 
+    // Unit Testing dependencies
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 
+    // Android Instrumented Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation("org.mockito:mockito-android:3.12.4")
+    androidTestImplementation("org.mockito:mockito-core:3.12.4")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

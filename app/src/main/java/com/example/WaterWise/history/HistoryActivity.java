@@ -14,10 +14,10 @@ import com.example.WaterWise.R;
 import com.example.WaterWise.data.DataModel;
 import com.example.WaterWise.home.MainActivity;
 import com.example.WaterWise.settings.SettingsActivity;
+import com.example.WaterWise.utils.HistoryUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -88,18 +88,19 @@ public class HistoryActivity extends AppCompatActivity {
      * @param historyList List of history records to be sorted.
      */
     private void sortHistoryRecords(List<HistoryRecord> historyList) {
-        Collections.sort(historyList, (record1, record2)-> {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            try {
-                // Parse the dates from strings and compare them
-                Date date1 = dateFormat.parse(record1.getDate());
-                Date date2 = dateFormat.parse(record2.getDate());
-                return date2.compareTo(date1); // Sort in descending order
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return 0;
-        });
+//        Collections.sort(historyList, (record1, record2)-> {
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//            try {
+//                // Parse the dates from strings and compare them
+//                Date date1 = dateFormat.parse(record1.getDate());
+//                Date date2 = dateFormat.parse(record2.getDate());
+//                return date2.compareTo(date1); // Sort in descending order
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return 0;
+//        });
+        HistoryUtils.sortHistoryRecords(historyList);
     }
 
 

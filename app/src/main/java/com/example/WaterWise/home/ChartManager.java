@@ -2,6 +2,7 @@ package com.example.WaterWise.home;
 
 import android.graphics.Color;
 
+import com.example.WaterWise.utils.HomeUtils;
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -37,7 +38,14 @@ public class ChartManager<T extends Chart<?>> {
      * @param intake   The current water intake in milliliters.
      */
     public void configurePieChart(PieChart pieChart, int goal, Integer intake) {
-        PieData pieData = generatePieData(goal, intake);
+        // Generate PieData without colors
+        PieData pieData = HomeUtils.generatePieData(goal, intake);
+
+        // Set colors for the PieDataSet here, since this depends on Android classes
+        PieDataSet dataSet = (PieDataSet) pieData.getDataSet();
+        dataSet.setColors(Color.BLUE, Color.GRAY);  // Set colors for the chart
+
+        // Apply appearance settings and display the chart
         setupPieChartAppearance(pieChart, pieData, goal, intake);
         pieChart.invalidate();  // Refresh the chart after data changes
     }
@@ -74,12 +82,17 @@ public class ChartManager<T extends Chart<?>> {
      * @param intake      The current water intake in milliliters.
      */
     private void setupPieChartAppearance(PieChart pieChart, PieData pieData, int goal, int intake) {
-        float intakePercentage = intake == 0? 0 : (intake * 100f) / goal;
+
+        float intakePercentage = HomeUtils.calculateIntakePercentage(goal, intake);
+//        float intakePercentage = intake == 0? 0 : (intake * 100f) / goal;
         float intakeInLiters = intake / 1000f;
-        String centerText = String.format("%s%%\n%sL",
-                (intakePercentage % 1 == 0 ? String.format("%.0f", intakePercentage) : String.format("%.1f", intakePercentage)),
-                (intakeInLiters % 1 == 0 ? String.format("%.0f", intakeInLiters) : String.format("%.1f", intakeInLiters))
-        );
+        String centerText = HomeUtils.formatCenterText(intakePercentage, intakeInLiters);
+
+//
+//        String centerText = String.format("%s%%\n%sL",
+//                (intakePercentage % 1 == 0 ? String.format("%.0f", intakePercentage) : String.format("%.1f", intakePercentage)),
+//                (intakeInLiters % 1 == 0 ? String.format("%.0f", intakeInLiters) : String.format("%.1f", intakeInLiters))
+//        );
 
         pieChart.setData(pieData);
         pieChart.setCenterText(centerText);  // Set center text
