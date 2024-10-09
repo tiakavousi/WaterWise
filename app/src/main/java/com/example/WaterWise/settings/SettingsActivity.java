@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,7 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class SettingsActivity extends AppCompatActivity {
     private ImageView profilePicture;
     private TextView nameValue, genderValue, weightValue, goalValue;
-    private Button signOutButton, signUpButton;
+    private Button signOutButton;
     private DataModel dataModel;
 
     /**
@@ -46,17 +45,22 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        // initialize data model
+
+        initializeDataModel();       // Initialize DataModel
+        initializeViews();          // Initialize UI components
+        observeDataModel();         // Observe DataModel values and update UI accordingly
+        setupBottomNavigation();    // Set up bottom navigation
+        setupListeners();           // Set up listeners for UI inputs and signOut Button
+    }
+
+    /**
+     * Initializes Initialize DataModel in this activity.
+     */
+    private void initializeDataModel(){
         dataModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
         ).get(DataModel.class);
-
-        initializeViews();          // Initialize UI components
-        observeDataModel();         // Observe DataModel values and update UI accordingly
-        setupAuthButtons();         // Set up sign-in/out buttons
-        setupBottomNavigation();    // Set up bottom navigation
-        setupListeners();           // Set up listeners for UI inputs
     }
 
     /**
@@ -69,41 +73,21 @@ public class SettingsActivity extends AppCompatActivity {
         weightValue = findViewById(R.id.weightValue);
         goalValue = findViewById(R.id.dailyGoalValue);
         signOutButton = findViewById(R.id.signOutButton);
-        signUpButton = findViewById(R.id.signUpButton);
     }
 
     /**
-     * Sets up click listeners for the editable fields: name, gender, weight, and daily goal.
+     * Sets up click listeners for the editable fields: name, gender, weight, daily goal and sign out button.
      */
     private void setupListeners(){
         nameValue.setOnClickListener(v -> showInputDialog("Name","name"));
         genderValue.setOnClickListener(v -> showGenderDialog());
         weightValue.setOnClickListener(v -> showInputDialog("Weight","weight"));
         goalValue.setOnClickListener(v -> showInputDialog("Daily Goal","dailyGoal"));
-    }
-
-    /**
-     * Configures the visibility and click actions for the sign-in and sign-out buttons.
-     * If a user is logged in, the sign-out button is shown. Otherwise, the sign-up button is shown.
-     */
-    private void setupAuthButtons(){
-        // By default, hide both buttons
-        signOutButton.setVisibility(View.GONE);
-        signUpButton.setVisibility(View.GONE);
-
-        // Show sign-out button if user is logged in, otherwise show sign-up button
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            signOutButton.setVisibility(View.VISIBLE);
-
-            signOutButton.setOnClickListener(v -> {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(SettingsActivity.this, EntryActivity.class));
-                finish();
-            });
-        } else {
-            signUpButton.setVisibility(View.VISIBLE);
-            signUpButton.setOnClickListener(v -> startActivity(new Intent(SettingsActivity.this, EntryActivity.class)));
-        }
+        signOutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(SettingsActivity.this, EntryActivity.class));
+            finish();
+        });
     }
 
     /**
@@ -160,8 +144,35 @@ public class SettingsActivity extends AppCompatActivity {
     private void showInputDialog(String title, String key) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
+        // Prepare the input field based on the key
+        final EditText input = prepareInputField(key);
+        builder.setView(input);
+        // Set the save action for the dialog
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String value = input.getText().toString().trim();
+            // Call validation method and proceed if the input is valid
+            if (validateInput(value, key)) {
+                updateDataModel(key, value);
+                Toast.makeText(
+                        SettingsActivity.this,
+                        title + " updated",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+        // Set the cancel action for the dialog
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
 
-        // Create an EditText field to get user input
+    /**
+     * This method is responsible for setting up the EditText field based on the key (whether it's
+     * for weight, daily goal, or name). It sets the appropriate input type and pre-fills the input
+     * field with the current value.
+     * @param key
+     * @return EditText input
+     */
+    private EditText prepareInputField(String key) {
         final EditText input = new EditText(this);
         String currentValue = "";
 
@@ -176,37 +187,29 @@ public class SettingsActivity extends AppCompatActivity {
             currentValue = nameValue.getText().toString();
             input.setInputType(InputType.TYPE_CLASS_TEXT);
         }
+
         input.setText(currentValue);
-        builder.setView(input);
+        return input;
+    }
 
-        // Set the save action for the dialog
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String value = input.getText().toString().trim();
-
-            // Call validation method and proceed if the input is valid
-            if (validateInput(value, key)) {
-                switch (key) {
-                    case "name":
-                        dataModel.setName(value);
-                        break;
-                    case "weight":
-                        dataModel.setWeight(Integer.parseInt(value));
-                        break;
-                    case "dailyGoal":
-                        dataModel.setGoal(Integer.parseInt(value));
-                        break;
-                }
-                Toast.makeText(
-                        SettingsActivity.this,
-                        title + " updated",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
-
-        // Set the cancel action for the dialog
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+    /**
+     * This helper method updates the DataModel based on the provided key and value.
+     * It handles the logic of determining which field to update based on the key.
+     * @param key
+     * @param value
+     */
+    private void updateDataModel(String key, String value) {
+        switch (key) {
+            case "name":
+                dataModel.setName(value);
+                break;
+            case "weight":
+                dataModel.setWeight(Integer.parseInt(value));
+                break;
+            case "dailyGoal":
+                dataModel.setGoal(Integer.parseInt(value));
+                break;
+        }
     }
 
     /**
