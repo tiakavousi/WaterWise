@@ -74,7 +74,11 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(v -> attemptLogin());
 
         // Set click listener for signup redirect text
-        signupRedirectText.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, SignupActivity.class)));
+        signupRedirectText.setOnClickListener(
+                v -> startActivity(new Intent(
+                        LoginActivity.this,
+                        SignupActivity.class
+                )));
 
         // Set click listener for forgot password link
         forgotPassword.setOnClickListener(v -> showForgotPasswordDialog());
@@ -93,13 +97,19 @@ public class LoginActivity extends AppCompatActivity {
         if (!validateInput(email, password)) return;
 
         // Sign in using Firebase Authentication
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish(); // Close the LoginActivity
-                })
-                .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Login Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Toast.makeText(
+                    LoginActivity.this,
+                    "Login Successful",
+                    Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(
+                    LoginActivity.this,
+                    "Login Failed: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        });
     }
 
     /**
@@ -170,10 +180,16 @@ public class LoginActivity extends AppCompatActivity {
             // Send reset password email
             auth.sendPasswordResetEmail(userEmail).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Check your email for password reset instructions", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            LoginActivity.this,
+                            "Check your email for password reset instructions",
+                            Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Failed to send reset email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            LoginActivity.this,
+                            "Failed to send reset email",
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         });

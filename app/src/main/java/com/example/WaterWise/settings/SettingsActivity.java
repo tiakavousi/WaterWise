@@ -146,7 +146,9 @@ public class SettingsActivity extends AppCompatActivity {
         dataModel.getGender().observe(this, gender -> genderValue.setText(gender));
         dataModel.getWeight().observe(this, weight -> weightValue.setText(String.valueOf(weight)));
         dataModel.getGoal().observe(this, goal -> goalValue.setText(String.format("%sml", goal)));
-        dataModel.getIntake().observe(this, intake -> updateProfilePhoto(dataModel.getGoal().getValue(), intake));
+        dataModel.getIntake().observe(this, intake ->
+                updateProfilePhoto(dataModel.getGoal().getValue(), intake)
+        );
     }
 
     /**
@@ -194,7 +196,11 @@ public class SettingsActivity extends AppCompatActivity {
                         dataModel.setGoal(Integer.parseInt(value));
                         break;
                 }
-                Toast.makeText(SettingsActivity.this, title + " updated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        SettingsActivity.this,
+                        title + " updated",
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
 
@@ -216,16 +222,32 @@ public class SettingsActivity extends AppCompatActivity {
         if (!isValid) {
             switch (key) {
                 case "weight":
-                    Toast.makeText(SettingsActivity.this, "Weight must be between 1 and 200 kg.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            SettingsActivity.this,
+                            "Weight must be between 1 and 200 kg.",
+                            Toast.LENGTH_SHORT
+                    ).show();
                     break;
                 case "dailyGoal":
-                    Toast.makeText(SettingsActivity.this, "Daily goal must be between 2L and 5L.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            SettingsActivity.this,
+                            "Daily goal must be between 2L and 5L.",
+                            Toast.LENGTH_SHORT
+                    ).show();
                     break;
                 case "name":
-                    Toast.makeText(SettingsActivity.this, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            SettingsActivity.this,
+                            "Name cannot be empty.",
+                            Toast.LENGTH_SHORT
+                    ).show();
                     break;
                 default:
-                    Toast.makeText(SettingsActivity.this, "Invalid input format.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            SettingsActivity.this,
+                            "Invalid input format.",
+                            Toast.LENGTH_SHORT
+                    ).show();
             }
         }
         return isValid;
