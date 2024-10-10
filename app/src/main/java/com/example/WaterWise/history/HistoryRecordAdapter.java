@@ -61,10 +61,8 @@ public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdap
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         // Get the history record at the current position
         HistoryRecord record = historyList.get(position);
-
         // Set the date text
         holder.dateTextView.setText(record.getDate());
-
         // Calculate the percentage of goal achieved
         float percentage = record.calculatePercentage(goal);
         // Check if the percentage is a whole number or requires a decimal place
@@ -76,11 +74,11 @@ public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdap
 
         // Adjust the background based on percentage
         holder.circleProgressView.setPercentage(percentage);
-
         // Format the date for better readability
         String rawDate = record.getDate();
         SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault()); // Format as "Mon, Aug 30, 2024"
+        // Format as "Mon, Aug 30, 2024"
+        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
         String formattedDate = "";
         try {
             // Parse the date from the original format and reformat it
@@ -92,7 +90,6 @@ public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdap
         }
         // Set the formatted date in the TextView
         holder.dateTextView.setText(formattedDate);
-        Log.d("HistoryAdapter", "Displaying history item at position: " + position + " with date: " + record.getDate());
     }
 
     /**
@@ -116,7 +113,6 @@ public class HistoryRecordAdapter extends RecyclerView.Adapter<HistoryRecordAdap
         TextView percentageTextView;
         // Custom view for displaying the circular progress bar
         CircleProgressView circleProgressView;
-
 
         /**
          * Constructor for the ViewHolder.

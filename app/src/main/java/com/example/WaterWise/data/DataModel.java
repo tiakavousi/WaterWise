@@ -76,14 +76,11 @@ public class DataModel extends AndroidViewModel {
         sharedPreferences = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         gson = new Gson();
         firestoreHelper = new FirestoreHelper();
-
         // Reset intake data if a new day starts
         checkAndResetDataIfNeeded();
-
         // Load data from shared preferences
         loadAllData();
         checkAndFetchSignUpDate();
-
         // Start listening to Firestore for data updates
         startListeningToFirestore();
     }

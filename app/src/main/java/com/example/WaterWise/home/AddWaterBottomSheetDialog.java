@@ -25,7 +25,6 @@ public class AddWaterBottomSheetDialog extends BottomSheetDialogFragment {
 
     /**
      * Sets the listener for receiving callbacks when an amount of water is selected.
-     *
      * @param listener The listener that will handle the selected water amount.
      */
     private OnWaterAmountSelectedListener listener;
@@ -60,7 +59,6 @@ public class AddWaterBottomSheetDialog extends BottomSheetDialogFragment {
 
         return dialog;
     }
-
 
     /**
      * Handles the selection of a water amount.

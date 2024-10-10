@@ -46,10 +46,12 @@ public class FirestoreHelper {
         userData.put("goal", goal);
         userData.put("weight", weight);
         userData.put("gender", gender);
-
         db.collection("users").document(userId).update(userData)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "User data successfully written!"))
-                .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
+                .addOnSuccessListener(
+                        aVoid -> Log.d("Firestore", "User data successfully written!")
+                ).addOnFailureListener(
+                        e -> Log.w("Firestore", "Error writing document", e)
+                );
     }
 
     /**
@@ -65,10 +67,13 @@ public class FirestoreHelper {
                 "date", date,
                 "amount", amount
         );
-
         db.collection("users").document(userId).collection("records").add(recordData)
-                .addOnSuccessListener(documentReference -> Log.d("Firestore", "Record successfully added to sub-collection!"))
-                .addOnFailureListener(e -> Log.w("Firestore", "Error adding record", e));
+                .addOnSuccessListener(documentReference ->
+                        Log.d("Firestore", "Record successfully added to sub-collection!")
+                )
+                .addOnFailureListener(e ->
+                        Log.w("Firestore", "Error adding record", e)
+                );
     }
 
     /**
@@ -131,7 +136,7 @@ public class FirestoreHelper {
                     Log.e("FirestoreHelper", "User document does not exist.");
                     callback.onDataLoaded(dataModel.DEFAULT_GOAL, dataModel.DEFAULT_INTAKE);
                 }
-            }else {
+            } else {
                     Log.e("FirestoreHelper", "Task was not successful or result is null.");
                     callback.onDataLoaded(dataModel.DEFAULT_GOAL, dataModel.DEFAULT_INTAKE);
             }
@@ -204,7 +209,7 @@ public class FirestoreHelper {
      * Callback interface to handle sign-up date retrieval.
      */
     public interface SignUpDateCallback {
-        void onSignUpDateFetched(String signUpDateStr); // Use String type
+        void onSignUpDateFetched(String signUpDateStr);
     }
 
     /**

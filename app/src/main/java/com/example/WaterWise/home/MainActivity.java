@@ -48,25 +48,31 @@ public class MainActivity extends AppCompatActivity {
     // Initializes the activity and sets up the views and logic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Initialization
+        // dataModel Initialization
         dataModel = new ViewModelProvider(this).get(DataModel.class);
 
         // Set initial values for goal and intake from DataModel
         goal = dataModel.getGoal().getValue() != null ? dataModel.getGoal().getValue() : DataModel.DEFAULT_GOAL;
         intake = dataModel.getIntake().getValue() != null ? dataModel.getIntake().getValue() : DataModel.DEFAULT_INTAKE;
+
         chartManager = new ChartManager<>(pieChart);
         setContentView(R.layout.activity_main);
+
+        initializeUIElements();
+        setupRecyclerView();
+        observeDataModel();
+        updatePieChart();
+        setupBottomNavigation();
+    }
+
+    /**
+     * Initializes views used in this activity.
+     */
+    private void initializeUIElements(){
         pieChart = findViewById(R.id.pieChart);
         recordsMessage = findViewById(R.id.recordsMessage);
         goalTextView = findViewById(R.id.goal_text);
         remainingTextView = findViewById(R.id.remaining_text);
-
-        setupRecyclerView();
-        // Observe changes to LiveData
-        observeDataModel();
-        // Initial chart update
-        updatePieChart();
-        setupBottomNavigation();
     }
 
     /**
@@ -79,8 +85,12 @@ public class MainActivity extends AppCompatActivity {
         double intakeInLiters = intake / 1000.0;
         double remainingInLiters = goalInLiters - intakeInLiters;
 
-        String goalText = (goalInLiters % 1 == 0) ? String.format("%.0f L", goalInLiters) : String.format("%.1f L", goalInLiters);
-        String remainingText = (remainingInLiters % 1 == 0) ? String.format("%.0f L", (remainingInLiters > 0 ? remainingInLiters : 0)) : String.format("%.1f L", (remainingInLiters > 0 ? remainingInLiters : 0));
+        String goalText = (goalInLiters % 1 == 0) ?
+                String.format("%.0f L", goalInLiters) :
+                String.format("%.1f L", goalInLiters);
+        String remainingText = (remainingInLiters % 1 == 0) ?
+                String.format("%.0f L", (remainingInLiters > 0 ? remainingInLiters : 0)) :
+                String.format("%.1f L", (remainingInLiters > 0 ? remainingInLiters : 0));
 
         goalTextView.setText("Goal: " + goalText);
         remainingTextView.setText("Remaining: " + remainingText);
@@ -97,21 +107,17 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Adds a specified amount of water to the current intake and updates the UI.
-     *
      * @param amount The amount of water to add, in milliliters.
      */
     private void addWater(int amount) {
         intake += amount;
         dataModel.setIntake(intake);
-
         // Update the PieChart with the new intake and goal
         updatePieChart();
         // Create a new record for the intake
         IntakeRecord newRecord = HomeUtils.createIntakeRecord(amount);
-
         // Add the new record to the list
         records.add(newRecord);
-
         // Add the record to the data model
         dataModel.addRecord(newRecord);
     }

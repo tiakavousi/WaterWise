@@ -7,10 +7,6 @@ import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ChartManager is a utility class to handle the configuration of various charts.
@@ -48,29 +44,6 @@ public class ChartManager<T extends Chart<?>> {
         // Apply appearance settings and display the chart
         setupPieChartAppearance(pieChart, pieData, goal, intake);
         pieChart.invalidate();  // Refresh the chart after data changes
-    }
-
-    /**
-     * Generates PieData for the PieChart based on the user's goal and intake.
-     *
-     * @param goal   The user's daily water goal in milliliters.
-     * @param intake The current water intake in milliliters.
-     * @return PieData containing entries for intake and remaining goal.
-     */
-    private PieData generatePieData(int goal, int intake) {
-        float remainingAmount = goal - intake;
-
-        List<PieEntry> pieEntries = new ArrayList<>();
-        pieEntries.add(new PieEntry(intake));
-        if (remainingAmount > 0) {
-            pieEntries.add(new PieEntry(remainingAmount));
-        }
-
-        PieDataSet pieDataSet = new PieDataSet(pieEntries, "Water Consumption");
-        pieDataSet.setColors(Color.BLUE, Color.GRAY);  // Set colors for the chart
-        pieDataSet.setDrawValues(false);  // Hide values on the chart
-
-        return new PieData(pieDataSet);
     }
 
     /**

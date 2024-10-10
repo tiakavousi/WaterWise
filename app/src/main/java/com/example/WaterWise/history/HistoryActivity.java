@@ -19,7 +19,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -68,41 +67,19 @@ public class HistoryActivity extends AppCompatActivity {
      * The data is observed from the ViewModel and sorted by date in descending order.
      */
     private void setUpHistoryRecyclerView() {
-        RecyclerView recyclerView2 = findViewById(R.id.recyclerView2);
-        recyclerView2.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Observe the history records from the ViewModel
         dataModel.getHistoryRecords().observe(this, historyList -> {
             // Sort history records by date (most recent first)
-            sortHistoryRecords(historyList);
+            HistoryUtils.sortHistoryRecords(historyList);
             // Fetch the goal from the data model
             int goalInMiliLiters = dataModel.getGoal().getValue();
             // Set the adapter for the RecyclerView
             HistoryRecordAdapter adapter = new HistoryRecordAdapter(historyList, goalInMiliLiters);
-            recyclerView2.setAdapter(adapter);
+            recyclerView.setAdapter(adapter);
         });
     }
-
-    /**
-     * Sorts the history records by date in descending order (most recent first).
-     *
-     * @param historyList List of history records to be sorted.
-     */
-    private void sortHistoryRecords(List<HistoryRecord> historyList) {
-//        Collections.sort(historyList, (record1, record2)-> {
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-//            try {
-//                // Parse the dates from strings and compare them
-//                Date date1 = dateFormat.parse(record1.getDate());
-//                Date date2 = dateFormat.parse(record2.getDate());
-//                return date2.compareTo(date1); // Sort in descending order
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            return 0;
-//        });
-        HistoryUtils.sortHistoryRecords(historyList);
-    }
-
 
     /**
      * Displays the current day of the week and date at the top of the activity.

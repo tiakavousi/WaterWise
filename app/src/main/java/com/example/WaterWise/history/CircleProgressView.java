@@ -24,7 +24,6 @@ public class CircleProgressView extends View {
 
     /**
      * Constructor for initializing the CircleProgressView.
-     *
      * @param context The context of the application.
      * @param attrs The attribute set from the XML layout.
      */
@@ -59,7 +58,6 @@ public class CircleProgressView extends View {
     /**
      * Called when the size of the view changes, for example, when the view is first drawn
      * or when the screen orientation changes.
-     *
      * @param w The new width of the view.
      * @param h The new height of the view.
      * @param oldw The old width of the view.
@@ -76,7 +74,6 @@ public class CircleProgressView extends View {
     /**
      * Called when the view is drawn on the screen. Draws the background circle and
      * the progress arc based on the current percentage.
-     *
      * @param canvas The canvas on which the background circle and progress arc are drawn.
      */
     @Override
@@ -95,7 +92,6 @@ public class CircleProgressView extends View {
 
     /**
      * Sets the progress percentage and invalidates the view, causing it to be redrawn.
-     *
      * @param percentage The progress percentage to display (0-100).
      */
     public void setPercentage(float percentage) {
